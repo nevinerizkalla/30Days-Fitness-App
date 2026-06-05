@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="css/modals.css">
 <link rel="stylesheet" href="css/summary.css">
 <link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/exercise-library.css">
 </head>
 <body>
 
@@ -52,6 +53,12 @@
   <button class="summary-trigger" onclick="openSummary()">📊 Summary</button>
 </div>
 
+<div class="view-toggle">
+  <button class="view-tab active" id="viewTabCalendar" onclick="setView('calendar')">📅 Calendar</button>
+  <button class="view-tab" id="viewTabLibrary" onclick="setView('library')">📚 Exercise Library</button>
+</div>
+
+<div class="view-calendar" id="viewCalendar">
 <div class="notif-panel" id="notifPanel">
   <div class="notif-panel-text">
     <div class="notif-panel-title">🔔 Evening Reminders · 8:00 PM</div>
@@ -81,6 +88,23 @@
 </div>
 
 <div class="calendar-container" id="calendarRoot"></div>
+</div><!-- /viewCalendar -->
+
+<div class="view-library" id="viewLibrary" hidden>
+  <div class="library-header">
+    <div class="library-header-tag">Exercise Library</div>
+    <h2 class="library-header-title">Every move, with tips &amp; videos</h2>
+    <p class="library-header-sub">Tap any thumbnail to play the tutorial right here. Switch the tabs below to browse by focus, type, or phase.</p>
+  </div>
+
+  <div class="library-tabs" id="libraryTabs">
+    <button class="lib-tab active" data-mode="focus" onclick="setLibraryMode('focus')">🎯 By Focus</button>
+    <button class="lib-tab" data-mode="type" onclick="setLibraryMode('type')">🧩 By Type</button>
+    <button class="lib-tab" data-mode="phase" onclick="setLibraryMode('phase')">📈 By Phase</button>
+  </div>
+
+  <div class="library-body" id="libraryRoot"></div>
+</div><!-- /viewLibrary -->
 
 
 <!-- SUMMARY MODAL -->
@@ -144,6 +168,7 @@
 <script src="js/export.js"></script>
 <script src="js/notifications.js"></script>
 <script src="js/pwa.js"></script>
+<script src="js/exercise-library.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
