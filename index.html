@@ -555,6 +555,7 @@ body{background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--charco
 
 <div class="toast" id="toast"></div>
 
+<script src="program-data.js"></script>
 <script>
 // ── STORAGE ────────────────────────────────────────────────
 const STORE_KEY = 'fitness30_v3';
@@ -565,206 +566,26 @@ let state = loadState();
 ['dayDone','exDone','warmupDone','cooldownDone','postponed','bonusActivated','tennisLog'].forEach(k=>{
   if(!state[k]) state[k]={};
 });
-if(!state.schedule||state.schedule.length!==30) state.schedule=null;
+// Schedule length is validated against totalProgramDays inside loadProgramData()
 
-// ── EXERCISE DATA ──────────────────────────────────────────
-const warmupExercises = [
-  {key:'catcow', name:'Cat-Cow Stretch', detail:'6 slow reps', link:'https://www.youtube.com/watch?v=kqnua4rHVVA'},
-  {key:'hipcirc', name:'Hip Circles', detail:'8 each side', link:'https://www.youtube.com/watch?v=VH7d6CkEBY4'},
-  {key:'armcirc', name:'Arm Circles', detail:'10 forward + 10 back', link:'https://www.youtube.com/watch?v=X1sYqAC9nHM'}
-];
-
-// Cooldown sets per phase with videos
-const cooldownSets = {
-  p1:[
-    {key:'childpose', name:"Child's Pose", detail:'Hold 30s', link:'https://www.youtube.com/watch?v=2MJGg-dUKh0'},
-    {key:'hipflexor', name:'Lying Hip Flexor Stretch', detail:'30s each side', link:'https://www.youtube.com/watch?v=YQmpTOQgZqI'},
-    {key:'chestopen', name:'Chest Opener Stretch', detail:'Hold 30s', link:'https://www.youtube.com/watch?v=cBe1xt-6QBE'}
-  ],
-  p2:[
-    {key:'pigeon', name:'Pigeon Pose', detail:'40s each side', link:'https://www.youtube.com/watch?v=24nKXO4VNYQ'},
-    {key:'tricepstr', name:'Overhead Tricep Stretch', detail:'30s each arm', link:'https://www.youtube.com/watch?v=GKDVF2g3aZA'},
-    {key:'cobra', name:'Cobra Stretch', detail:'Hold 30s', link:'https://www.youtube.com/watch?v=JDl_q5m19jA'}
-  ],
-  p3:[
-    {key:'figure4', name:'Figure-4 Hip Stretch', detail:'40s each side', link:'https://www.youtube.com/watch?v=nzLkv9AAaKc'},
-    {key:'tricepstr2', name:'Overhead Tricep Stretch', detail:'30s each arm', link:'https://www.youtube.com/watch?v=GKDVF2g3aZA'},
-    {key:'catcow2', name:'Cat-Cow Flow', detail:'6 slow reps', link:'https://www.youtube.com/watch?v=kqnua4rHVVA'}
-  ],
-  p4:[
-    {key:'pigeon2', name:'Pigeon Pose', detail:'45s each side', link:'https://www.youtube.com/watch?v=24nKXO4VNYQ'},
-    {key:'fwdfold', name:'Seated Forward Fold', detail:'Hold 45s', link:'https://www.youtube.com/watch?v=Fh-smPKLfb0'},
-    {key:'doorway', name:'Doorway Chest Stretch', detail:'Hold 30s', link:'https://www.youtube.com/watch?v=WMb-jbYnI3Q'},
-    {key:'spinaltwist', name:'Supine Spinal Twist', detail:'30s each side', link:'https://www.youtube.com/watch?v=XrEiPJKLPsc'}
-  ]
-};
-const cooldownKeyMap = {1:'p1',2:'p2',3:'p3',4:'p4'};
-
-// Apple Watch guidance per phase
-const watchGuide = {
-  1:{ type:'Functional Strength Training', steps:'On Apple Watch → Workout app → scroll to "Functional Strength Training" → tap Start', tip:'Phase 1 uses bodyweight & low-load moves. Functional Strength gives the most accurate calorie burn for this type.'},
-  2:{ type:'Functional Strength Training', steps:'Apple Watch → Workout → "Functional Strength Training". As intensity builds, your HR zone will push into Zone 2–3.', tip:'If HR stays in Zone 3+ for most of the session, you can also log as "Core Training" for variety.'},
-  3:{ type:'Core Training', steps:'Apple Watch → Workout → scroll to "Core Training" → Start. Alternatively use "Functional Strength Training".', tip:'Phase 3 has sustained plank holds & HIIT-style moves. Core Training or Functional Strength both work — Core Training tracks HR more aggressively.'},
-  4:{ type:'Core Training', steps:'Apple Watch → Workout → "Core Training" → Start. At peak intensity you may prefer "HIIT" if HR stays above 75% max.', tip:'Peak days push into Zone 3–4. If a session feels like a full circuit, select HIIT for better calorie tracking.'}
-};
-
-const exercises = {
-  deadBug:{name:"Dead Bug",target:"Deep core, APT correction",tip:"Press lower back into mat the entire time. Move slowly.",link:"https://www.youtube.com/watch?v=g_BYB0R-4Ws"},
-  pelvicTilt:{name:"Supine Pelvic Tilt",target:"Lower abs, APT correction",tip:"Flatten lower back to mat by squeezing glutes and drawing navel in.",link:"https://www.youtube.com/watch?v=BxtzqQilHDM"},
-  gluteBridge:{name:"Glute Bridge",target:"Glutes, hamstrings, APT",tip:"Squeeze glutes at the top. Don't hyperextend lower back.",link:"https://www.youtube.com/watch?v=OUgsJ8-Vi0E"},
-  birdDog:{name:"Bird Dog",target:"Core stability, lower back, APT",tip:"Keep hips level — don't rotate as you extend opposite arm/leg.",link:"https://www.youtube.com/watch?v=wiFNA3sqjCA"},
-  hollowBodyHold:{name:"Hollow Body Hold",target:"Deep core, abs, APT",tip:"Lower back stays on mat. Lower legs only as far as you can without arching.",link:"https://www.youtube.com/watch?v=LlDNef_Ztsc"},
-  modifiedPlank:{name:"Modified Plank (Knees)",target:"Core, shoulders, APT",tip:"Straight line from knees to head. Engage abs — don't sag.",link:"https://www.youtube.com/watch?v=IODxDxX7oi4"},
-  fullPlank:{name:"Full Plank Hold",target:"Full core, APT stabilization",tip:"Tuck pelvis slightly and pull navel to spine.",link:"https://www.youtube.com/watch?v=pSHjTRCQxIw"},
-  reverseCrunch:{name:"Reverse Crunch",target:"Lower abs, APT correction",tip:"Curl hips up using lower abs — no momentum.",link:"https://www.youtube.com/watch?v=Wf7uVBsZ8go"},
-  legRaiseBent:{name:"Bent Knee Leg Raise",target:"Lower abs, hip flexors",tip:"Keep lower back pressed to mat. Raise and lower with control.",link:"https://www.youtube.com/watch?v=l4kQd9eWclE"},
-  mountainClimber:{name:"Slow Mountain Climbers",target:"Core, cardio, total body",tip:"Slow and deliberate — feel core engage with each knee drive.",link:"https://www.youtube.com/watch?v=nmwgirgXLYM"},
-  sidePlank:{name:"Side Plank (Modified)",target:"Obliques, lateral core",tip:"Stack hips — don't drop them. Hold from knees if needed.",link:"https://www.youtube.com/watch?v=K-CrEi0ymMg"},
-  hipThrust:{name:"Hip Thrust (Floor)",target:"Glutes, APT correction",tip:"Drive through heels. Squeeze glutes at top for 1 second.",link:"https://www.youtube.com/watch?v=xDmFkJxPzeM"},
-  innerThighSqueezeB:{name:"Lying Inner Thigh Squeeze",target:"Inner thighs (adductors)",tip:"Use a pillow or fist between knees. Squeeze and hold 3 sec.",link:"https://www.youtube.com/watch?v=7-oTLvA5zio"},
-  sumoSquat:{name:"Sumo Squat",target:"Inner thighs, glutes, quads",tip:"Toes out 45°, knees track over toes. Sit deep.",link:"https://www.youtube.com/watch?v=xMGNBF8MD1c"},
-  innerThighLift:{name:"Side-Lying Inner Thigh Lift",target:"Inner thighs (adductors)",tip:"Bottom leg lifts. Foot flexed. Don't let hip roll back.",link:"https://www.youtube.com/watch?v=lTwPCgmDqNE"},
-  plateSumoSquat:{name:"Sumo Squat Pulse",target:"Inner thighs, glutes",tip:"Hold the bottom position, pulse 1 inch up and down.",link:"https://www.youtube.com/watch?v=xMGNBF8MD1c"},
-  lateralLunge:{name:"Lateral Lunge",target:"Inner thighs, glutes",tip:"Push hips back, chest up. Straight leg feels the stretch.",link:"https://www.youtube.com/watch?v=1r2nfj9VPvA"},
-  bicepCurl:{name:"Bicep Curl (1kg)",target:"Biceps, forearms",tip:"Slow and controlled. Squeeze at top, lower in 3 counts.",link:"https://www.youtube.com/watch?v=ykJmrZ5v0Oo"},
-  overheadPress:{name:"Overhead Shoulder Press (1kg)",target:"Shoulders, triceps",tip:"Core tight, don't arch back. Press straight up.",link:"https://www.youtube.com/watch?v=qEwKCR5JCog"},
-  tricepKickback:{name:"Tricep Kickback (1kg)",target:"Triceps (arm toning)",tip:"Upper arm parallel to floor. Extend fully, squeeze tricep.",link:"https://www.youtube.com/watch?v=6SS6K3lAwZ8"},
-  lateralRaise:{name:"Lateral Raise (1kg)",target:"Shoulders, upper arms",tip:"Slight elbow bend, raise to shoulder height. Slow descent.",link:"https://www.youtube.com/watch?v=3VcKaXpzqRo"},
-  wallPushUp:{name:"Wall Push-Up",target:"Chest, triceps, shoulders",tip:"Straight body line. Lower chest to wall, push back.",link:"https://www.youtube.com/watch?v=PKbAMoWvW1s"},
-  kneePushUp:{name:"Knee Push-Up",target:"Chest, triceps, arms",tip:"Core engaged. Lower chest between hands, not face.",link:"https://www.youtube.com/watch?v=jWxvty2KROs"},
-  frontRaise:{name:"Front Raise (1kg)",target:"Front deltoids, arms",tip:"Arms straight, raise to shoulder height. Control down.",link:"https://www.youtube.com/watch?v=gkdluM7VSGI"},
-  tricepOverhead:{name:"Overhead Tricep Extension (1kg)",target:"Triceps",tip:"Hold dumbbell with both hands overhead. Lower behind head, elbows in.",link:"https://www.youtube.com/watch?v=YbX7Wd8jQ-Q"},
-  hammerCurl:{name:"Hammer Curl (1kg)",target:"Biceps, forearms",tip:"Thumbs-up grip. Controlled curl and descent.",link:"https://www.youtube.com/watch?v=zC3nLlEvin4"}
-};
-
-// Tennis day warm-up exercises (clay court, 5 min)
-const tennisWarmup = [
-  {key:'tw_jog', name:'Light Jog in Place', detail:'60 seconds', link:'https://www.youtube.com/watch?v=ZKNqH1BNKFE', tip:'Gets blood flowing to legs before clay court movement.'},
-  {key:'tw_legswing', name:'Leg Swings (Front & Side)', detail:'10 each leg, each direction', link:'https://www.youtube.com/watch?v=PNJ3QYlJwrw', tip:'Opens hip flexors — essential for clay court lateral movement.'},
-  {key:'tw_hiprot', name:'Hip Rotation Stretch', detail:'8 circles each direction', link:'https://www.youtube.com/watch?v=VH7d6CkEBY4', tip:'Primes the hips for the explosive rotational demands of clay.'},
-  {key:'tw_shoulderroll', name:'Shoulder Rolls & Arm Cross', detail:'10 forward, 10 back, 20s cross stretch', link:'https://www.youtube.com/watch?v=X1sYqAC9nHM', tip:'Warms up serving and forehand/backhand shoulder muscles.'},
-  {key:'tw_anklecirc', name:'Ankle Circles & Calf Raise', detail:'10 each ankle + 15 calf raises', link:'https://www.youtube.com/watch?v=4J9M6nXE_eU', tip:'Clay is slippery — ankle stability is critical before stepping on court.'},
-  {key:'tw_lateralstep', name:'Lateral Side Steps', detail:'10 each side — wide stance', link:'https://www.youtube.com/watch?v=1oRd81Kj0VY', tip:'Mimics clay court footwork. Wide stance, stay low.'}
-];
-
-// Tennis post-game stretches
-const tennisStretches = [
-  {key:'ts_quad', name:'Standing Quad Stretch', detail:'30s each leg', link:'https://www.youtube.com/watch?v=y3m7MwDgDtg', tip:'Clay play is hard on quads from low stances — stretch immediately after.'},
-  {key:'ts_calf', name:'Calf Stretch (Wall)', detail:'30s each leg', link:'https://www.youtube.com/watch?v=9-9FZQJ3t6Y', tip:'Prevents tightness from explosive clay court starts and stops.'},
-  {key:'ts_hip', name:'Pigeon Pose Hip Stretch', detail:'40s each side', link:'https://www.youtube.com/watch?v=24nKXO4VNYQ', tip:'Releases hip flexors after all that lateral movement.'},
-  {key:'ts_shoulder', name:'Cross-Body Shoulder Stretch', detail:'30s each arm', link:'https://www.youtube.com/watch?v=OkLHSMpJGno', tip:'Cool down the serving shoulder to prevent rotator cuff tightness.'},
-  {key:'ts_hamstring', name:'Seated Hamstring Stretch', detail:'40s each leg', link:'https://www.youtube.com/watch?v=Fh-smPKLfb0', tip:'Hamstrings take a beating on clay — long hold here.'},
-  {key:'ts_spinal', name:'Supine Spinal Twist', detail:'30s each side', link:'https://www.youtube.com/watch?v=XrEiPJKLPsc', tip:'Decompresses the spine after serving and ground-stroke rotation.'}
-];
-
-// ── WORKOUT DATA ────────────────────────────────────────────
-const workouts = [
-  {day:1,phase:1,workoutMins:6,focus:["Core Activation","APT Introduction"],exercises:[
-    {ex:"pelvicTilt",reps:"10 × 2 sets, 3s hold"},{ex:"gluteBridge",reps:"12 × 2 sets"},
-    {ex:"deadBug",reps:"6 each side × 1 set"},{ex:"innerThighSqueezeB",reps:"12 × 2 sets, 3s hold"},{ex:"bicepCurl",reps:"12 × 1 set"}]},
-  {day:2,phase:1,workoutMins:6,focus:["Lower Abs","Arms Intro"],exercises:[
-    {ex:"pelvicTilt",reps:"12 × 2 sets"},{ex:"legRaiseBent",reps:"10 × 2 sets"},
-    {ex:"birdDog",reps:"8 each side × 1 set"},{ex:"wallPushUp",reps:"10 × 2 sets"},{ex:"tricepKickback",reps:"10 × 1 set"}]},
-  {day:3,phase:1,workoutMins:7,focus:["Glutes","Inner Thighs"],exercises:[
-    {ex:"gluteBridge",reps:"15 × 2 sets"},{ex:"sumoSquat",reps:"12 × 2 sets"},
-    {ex:"innerThighLift",reps:"12 each × 1 set"},{ex:"deadBug",reps:"8 each × 1 set"},{ex:"overheadPress",reps:"10 × 1 set"}]},
-  {day:4,phase:1,workoutMins:7,focus:["Core Stability","Arms"],exercises:[
-    {ex:"modifiedPlank",reps:"20s × 2 sets"},{ex:"birdDog",reps:"10 each × 1 set"},
-    {ex:"reverseCrunch",reps:"10 × 2 sets"},{ex:"bicepCurl",reps:"12 × 2 sets"},{ex:"lateralRaise",reps:"10 × 1 set"}]},
-  {day:5,phase:1,workoutMins:7,focus:["Full Lower Body","APT"],exercises:[
-    {ex:"pelvicTilt",reps:"15 × 2 sets"},{ex:"hipThrust",reps:"12 × 2 sets"},
-    {ex:"sumoSquat",reps:"15 × 2 sets"},{ex:"innerThighLift",reps:"15 each × 1 set"},{ex:"tricepKickback",reps:"12 × 1 set"}]},
-  {day:6,phase:1,workoutMins:8,focus:["Core + Arms Circuit"],exercises:[
-    {ex:"deadBug",reps:"10 each × 2 sets"},{ex:"modifiedPlank",reps:"25s × 2 sets"},
-    {ex:"wallPushUp",reps:"12 × 2 sets"},{ex:"tricepOverhead",reps:"10 × 2 sets"},{ex:"innerThighSqueezeB",reps:"15 × 2 sets"}]},
-  {day:7,phase:1,workoutMins:8,focus:["Active Recovery","Full Body"],exercises:[
-    {ex:"gluteBridge",reps:"15 × 2 sets"},{ex:"birdDog",reps:"10 each × 2 sets"},
-    {ex:"legRaiseBent",reps:"12 × 2 sets"},{ex:"bicepCurl",reps:"15 × 1 set"},{ex:"lateralRaise",reps:"12 × 1 set"}]},
-  {day:8,phase:1,workoutMins:8,focus:["Phase 1 Consolidation"],exercises:[
-    {ex:"pelvicTilt",reps:"15 × 2 sets"},{ex:"hollowBodyHold",reps:"15s × 2 sets"},
-    {ex:"sumoSquat",reps:"15 × 2 sets"},{ex:"kneePushUp",reps:"8 × 2 sets"},{ex:"innerThighLift",reps:"15 each × 1 set"}]},
-  {day:9,phase:2,workoutMins:10,focus:["Core Endurance","APT Deepening"],exercises:[
-    {ex:"hollowBodyHold",reps:"20s × 3 sets"},{ex:"deadBug",reps:"12 each × 3 sets"},
-    {ex:"reverseCrunch",reps:"12 × 3 sets"},{ex:"gluteBridge",reps:"15 × 3 sets, 2s hold"},{ex:"bicepCurl",reps:"15 × 2 sets"}]},
-  {day:10,phase:2,workoutMins:11,focus:["Inner Thighs","Triceps"],exercises:[
-    {ex:"sumoSquat",reps:"15 × 3 sets"},{ex:"plateSumoSquat",reps:"20 pulses × 3 sets"},
-    {ex:"innerThighLift",reps:"15 each × 3 sets"},{ex:"tricepKickback",reps:"15 × 3 sets"},{ex:"tricepOverhead",reps:"12 × 2 sets"}]},
-  {day:11,phase:2,workoutMins:11,focus:["Plank Progressions","Shoulders"],exercises:[
-    {ex:"fullPlank",reps:"25s × 3 sets"},{ex:"sidePlank",reps:"20s each × 3 sets"},
-    {ex:"mountainClimber",reps:"20 × 3 sets (slow)"},{ex:"overheadPress",reps:"15 × 3 sets"},{ex:"lateralRaise",reps:"12 × 2 sets"}]},
-  {day:12,phase:2,workoutMins:11,focus:["Glute & Thigh Focus"],exercises:[
-    {ex:"hipThrust",reps:"15 × 3 sets, 1s hold"},{ex:"lateralLunge",reps:"12 each × 3 sets"},
-    {ex:"innerThighSqueezeB",reps:"15 × 3 sets, 5s hold"},{ex:"reverseCrunch",reps:"15 × 3 sets"},{ex:"kneePushUp",reps:"10 × 3 sets"}]},
-  {day:13,phase:2,workoutMins:12,focus:["Core Circuit"],exercises:[
-    {ex:"deadBug",reps:"12 each × 2 sets"},{ex:"hollowBodyHold",reps:"25s × 2 sets"},
-    {ex:"birdDog",reps:"12 each × 2 sets"},{ex:"mountainClimber",reps:"25 slow × 2 sets"},{ex:"frontRaise",reps:"12 × 2 sets"}]},
-  {day:14,phase:2,workoutMins:12,focus:["Arms + Thighs Superset"],exercises:[
-    {ex:"bicepCurl",reps:"15 × 3 sets"},{ex:"sumoSquat",reps:"15 × 3 sets"},
-    {ex:"tricepKickback",reps:"15 × 3 sets"},{ex:"innerThighLift",reps:"15 each × 2 sets"},{ex:"gluteBridge",reps:"15 × 2 sets"}]},
-  {day:15,phase:2,workoutMins:12,focus:["Full Core + APT"],exercises:[
-    {ex:"pelvicTilt",reps:"15 × 3 sets"},{ex:"fullPlank",reps:"30s × 3 sets"},
-    {ex:"sidePlank",reps:"25s each × 2 sets"},{ex:"hipThrust",reps:"18 × 2 sets"},{ex:"hammerCurl",reps:"12 × 2 sets"}]},
-  {day:16,phase:2,workoutMins:13,focus:["Phase 2 Peak"],exercises:[
-    {ex:"deadBug",reps:"15 each × 2 sets"},{ex:"reverseCrunch",reps:"15 × 3 sets"},
-    {ex:"lateralLunge",reps:"15 each × 2 sets"},{ex:"kneePushUp",reps:"12 × 3 sets"},{ex:"tricepOverhead",reps:"15 × 2 sets"}]},
-  {day:17,phase:3,workoutMins:15,focus:["Strength Foundation"],exercises:[
-    {ex:"hollowBodyHold",reps:"30s × 3 sets"},{ex:"hipThrust",reps:"20 × 3 sets, 2s hold"},
-    {ex:"sumoSquat",reps:"20 × 3 sets"},{ex:"overheadPress",reps:"18 × 3 sets"},{ex:"sidePlank",reps:"30s each × 3 sets"}]},
-  {day:18,phase:3,workoutMins:16,focus:["Core Intensity"],exercises:[
-    {ex:"fullPlank",reps:"45s × 3 sets"},{ex:"mountainClimber",reps:"30 × 3 sets"},
-    {ex:"deadBug",reps:"15 each × 3 sets"},{ex:"reverseCrunch",reps:"18 × 3 sets"},{ex:"bicepCurl",reps:"20 × 3 sets"}]},
-  {day:19,phase:3,workoutMins:16,focus:["Thighs & Glutes Strength"],exercises:[
-    {ex:"plateSumoSquat",reps:"30 pulses × 3 sets"},{ex:"innerThighLift",reps:"20 each × 3 sets"},
-    {ex:"lateralLunge",reps:"15 each × 3 sets"},{ex:"gluteBridge",reps:"20 × 3 sets, 3s hold"},{ex:"tricepKickback",reps:"20 × 3 sets"}]},
-  {day:20,phase:3,workoutMins:17,focus:["Arms & Shoulders Strength"],exercises:[
-    {ex:"kneePushUp",reps:"15 × 3 sets"},{ex:"bicepCurl",reps:"20 × 3 sets"},
-    {ex:"lateralRaise",reps:"15 × 3 sets"},{ex:"tricepOverhead",reps:"15 × 3 sets"},
-    {ex:"frontRaise",reps:"15 × 3 sets"},{ex:"hollowBodyHold",reps:"30s × 3 sets"}]},
-  {day:21,phase:3,workoutMins:17,focus:["Full Body Circuit A"],exercises:[
-    {ex:"fullPlank",reps:"45s × 3 sets"},{ex:"hipThrust",reps:"20 × 3 sets"},
-    {ex:"innerThighSqueezeB",reps:"20 × 3 sets, 5s hold"},{ex:"overheadPress",reps:"18 × 3 sets"},{ex:"mountainClimber",reps:"30 × 3 sets"}]},
-  {day:22,phase:3,workoutMins:18,focus:["APT & Core Power"],exercises:[
-    {ex:"pelvicTilt",reps:"20 × 3 sets"},{ex:"deadBug",reps:"15 each × 3 sets"},
-    {ex:"birdDog",reps:"15 each × 3 sets"},{ex:"sidePlank",reps:"35s each × 3 sets"},
-    {ex:"sumoSquat",reps:"20 × 3 sets"},{ex:"hammerCurl",reps:"15 × 3 sets"}]},
-  {day:23,phase:3,workoutMins:19,focus:["Full Body Circuit B"],exercises:[
-    {ex:"kneePushUp",reps:"15 × 3 sets"},{ex:"lateralLunge",reps:"15 each × 3 sets"},
-    {ex:"reverseCrunch",reps:"20 × 3 sets"},{ex:"tricepKickback",reps:"20 × 3 sets"},
-    {ex:"innerThighLift",reps:"20 each × 3 sets"},{ex:"gluteBridge",reps:"20 × 3 sets"}]},
-  {day:24,phase:3,workoutMins:20,focus:["Phase 3 Peak"],exercises:[
-    {ex:"fullPlank",reps:"50s × 3 sets"},{ex:"hollowBodyHold",reps:"35s × 3 sets"},
-    {ex:"hipThrust",reps:"20 × 3 sets, 2s hold"},{ex:"overheadPress",reps:"20 × 3 sets"},
-    {ex:"plateSumoSquat",reps:"30 pulses × 3 sets"},{ex:"mountainClimber",reps:"35 × 3 sets"}]},
-  {day:25,phase:4,workoutMins:20,focus:["Peak Circuit A"],exercises:[
-    {ex:"fullPlank",reps:"50s × 3 sets"},{ex:"deadBug",reps:"20 each × 3 sets"},
-    {ex:"sumoSquat",reps:"20 × 3 sets"},{ex:"bicepCurl",reps:"20 × 3 sets"},
-    {ex:"tricepOverhead",reps:"20 × 3 sets"},{ex:"innerThighLift",reps:"20 each × 3 sets"}]},
-  {day:26,phase:4,workoutMins:21,focus:["Peak APT + Lower Body"],exercises:[
-    {ex:"pelvicTilt",reps:"20 × 3 sets"},{ex:"hipThrust",reps:"25 × 3 sets, 2s hold"},
-    {ex:"lateralLunge",reps:"20 each × 3 sets"},{ex:"sidePlank",reps:"40s each × 3 sets"},
-    {ex:"overheadPress",reps:"20 × 3 sets"},{ex:"reverseCrunch",reps:"20 × 3 sets"}]},
-  {day:27,phase:4,workoutMins:22,focus:["Peak Arms + Core"],exercises:[
-    {ex:"kneePushUp",reps:"15 × 4 sets"},{ex:"tricepKickback",reps:"20 × 3 sets"},
-    {ex:"frontRaise",reps:"15 × 3 sets"},{ex:"hollowBodyHold",reps:"40s × 3 sets"},
-    {ex:"mountainClimber",reps:"40 × 3 sets"},{ex:"innerThighSqueezeB",reps:"20 × 3 sets, 5s hold"}]},
-  {day:28,phase:4,workoutMins:22,focus:["Peak Full Body Strength"],exercises:[
-    {ex:"fullPlank",reps:"55s × 3 sets"},{ex:"plateSumoSquat",reps:"30 pulses × 3 sets"},
-    {ex:"deadBug",reps:"20 each × 3 sets"},{ex:"hammerCurl",reps:"20 × 3 sets"},
-    {ex:"lateralRaise",reps:"20 × 3 sets"},{ex:"hipThrust",reps:"25 × 3 sets"}]},
-  {day:29,phase:4,workoutMins:23,focus:["Peak Integration"],exercises:[
-    {ex:"birdDog",reps:"20 each × 3 sets"},{ex:"hipThrust",reps:"25 × 3 sets, 3s hold"},
-    {ex:"lateralLunge",reps:"20 each × 3 sets"},{ex:"kneePushUp",reps:"15 × 4 sets"},
-    {ex:"tricepOverhead",reps:"20 × 3 sets"},{ex:"mountainClimber",reps:"40 × 3 sets"}]},
-  {day:30,phase:4,workoutMins:24,focus:["Final Day — Full Program"],exercises:[
-    {ex:"pelvicTilt",reps:"20 × 3 sets"},{ex:"fullPlank",reps:"60s × 4 sets"},
-    {ex:"deadBug",reps:"20 each × 3 sets"},{ex:"hipThrust",reps:"25 × 4 sets, 3s hold"},
-    {ex:"sumoSquat",reps:"20 × 3 sets"},{ex:"bicepCurl",reps:"20 × 3 sets"},
-    {ex:"tricepKickback",reps:"20 × 3 sets"},{ex:"innerThighLift",reps:"20 each × 3 sets"}]}
-];
-
-// cooldown durations per phase (minutes)
-const cooldownMins = {1:2, 2:3, 3:3, 4:4};
-const warmupMins = 2;
+// ── PROGRAM DATA (loaded from program-data.js) ─────────────
+// All plan-specific config (workouts, videos, tennis days, warm-ups, cool-downs,
+// phase definitions, program start date) lives in program-data.js as PROGRAM_DATA.
+// Edit that file to swap in a new plan — the calendar reads from it on load.
+let warmupExercises = [];
+let cooldownSets = {};       // keyed by phase number (1-4)
+let watchGuide = {};
+let exercises = {};
+let tennisWarmup = [];
+let tennisStretches = [];
+let workouts = [];
+let cooldownMins = {};
+let warmupMins = 2;
+let restDayWeekdays = [];
+let totalProgramDays = 30;
+let phases = {};
+let focusAreas = {};
+let PROGRAM_START = null;
 
 function getTotalMins(w){
   const cd = cooldownMins[w.phase]||2;
@@ -774,10 +595,39 @@ function getTotalMins(w){
 // ── SCHEDULE ────────────────────────────────────────────────
 const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-function isDefaultRestDay(d){ const dw=d.getDay(); return dw===0||dw===2; }
+const dayFullNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function isDefaultRestDay(d){ return restDayWeekdays.includes(d.getDay()); }
 function dateKey(d){ return d.toISOString().slice(0,10); }
 function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
-const PROGRAM_START = new Date(2026,5,8);
+
+function loadProgramData(){
+  if(typeof PROGRAM_DATA === 'undefined'){
+    throw new Error('PROGRAM_DATA not found — make sure program-data.js loaded before this script');
+  }
+  const data = PROGRAM_DATA;
+
+  warmupExercises = data.warmupExercises;
+  cooldownSets    = data.cooldownSets;
+  watchGuide      = data.watchGuide;
+  exercises       = data.exercises;
+  tennisWarmup    = data.tennisWarmup;
+  tennisStretches = data.tennisStretches;
+  workouts        = data.workouts;
+  phases          = data.phases;
+  focusAreas      = data.focusAreas || {};
+
+  warmupMins        = data.program.warmupMins;
+  cooldownMins      = {};
+  Object.entries(data.program.cooldownMinsByPhase).forEach(([k,v])=>{ cooldownMins[Number(k)] = v; });
+  restDayWeekdays   = data.program.restDayWeekdays;
+  totalProgramDays  = data.program.totalDays;
+
+  const [y,m,d] = data.program.startDate.split('-').map(Number);
+  PROGRAM_START = new Date(y, m-1, d);
+
+  // Reset schedule if it doesn't match the current plan length
+  if(!state.schedule || state.schedule.length !== totalProgramDays) state.schedule = null;
+}
 
 function rebuildSchedule(){
   const postponed = new Set(Object.keys(state.postponed).map(Number).filter(i=>state.postponed[i]));
@@ -786,14 +636,14 @@ function rebuildSchedule(){
     const dt=addDays(PROGRAM_START,d);
     if(!isDefaultRestDay(dt)) avail.push(dateKey(dt));
   }
-  const newSched=new Array(30).fill(null);
+  const newSched=new Array(totalProgramDays).fill(null);
   const used=new Set(); let si=0;
-  for(let wi=0;wi<30;wi++){
+  for(let wi=0;wi<totalProgramDays;wi++){
     if(postponed.has(wi)) continue;
     while(used.has(avail[si])) si++;
     newSched[wi]=avail[si]; used.add(avail[si]); si++;
   }
-  for(let wi=0;wi<30;wi++){
+  for(let wi=0;wi<totalProgramDays;wi++){
     if(!postponed.has(wi)) continue;
     while(used.has(avail[si])) si++;
     newSched[wi]=avail[si]; used.add(avail[si]); si++;
@@ -804,10 +654,10 @@ function rebuildSchedule(){
 // ── PROGRESS ────────────────────────────────────────────────
 function updateProgress(){
   const done=Object.keys(state.dayDone).filter(k=>!k.startsWith('bonus')&&!k.startsWith('tennis')&&state.dayDone[k]).length;
-  const pct=Math.round((done/30)*100);
+  const pct=Math.round((done/totalProgramDays)*100);
   document.getElementById('progFill').style.width=pct+'%';
   document.getElementById('progPct').textContent=pct+'%';
-  document.getElementById('progStats').textContent=`${done} / 30 days done`;
+  document.getElementById('progStats').textContent=`${done} / ${totalProgramDays} days done`;
 }
 
 // ── TOAST ────────────────────────────────────────────────────
@@ -818,8 +668,9 @@ function showToast(msg){
 }
 
 // ── CALENDAR BUILD ───────────────────────────────────────────
-const phaseColors=['','var(--sage-dark)','#3A6D8C','#804060','#9A7C28'];
-const phaseLabel=['','Phase 1 · Foundation','Phase 2 · Build','Phase 3 · Strength','Phase 4 · Peak'];
+function phaseTagColor(p){ return (phases[p]&&phases[p].tagColor)||''; }
+function phaseLabelText(p){ return phases[p] ? `Phase ${p} · ${phases[p].name}` : ''; }
+function phaseBarColor(p){ return (phases[p]&&phases[p].barColor)||''; }
 
 function buildCalendar(){
   rebuildSchedule();
@@ -890,7 +741,6 @@ function formatDate(d){ return `${d.getDate()} ${monthNames[d.getMonth()]}`; }
 function renderTennisCard(card,day){
   const dk=day.dk;
   const logged=state.tennisLog[dk]; // 'yes','no', or undefined
-  const isSun=day.date.getDay()===0;
   card.className='day-card rest';
 
   let loggedBlock='';
@@ -912,7 +762,7 @@ function renderTennisCard(card,day){
   card.innerHTML=`
     <div class="day-num">${formatDate(day.date)} · ${dayNames[day.date.getDay()]}</div>
     <div class="rest-icon">🎾</div>
-    <div class="rest-label">${isSun?'Sunday':'Tuesday'}</div>
+    <div class="rest-label">${dayFullNames[day.date.getDay()]}</div>
     <div class="rest-sub" style="font-size:10px;color:var(--rest-text);">Tap for warm-up & stretches</div>
     ${loggedBlock}
     ${questionBlock}
@@ -997,7 +847,7 @@ let currentTennisDk=null;
 function openTennisModal(dk, date){
   currentTennisDk=dk;
   const logged=state.tennisLog[dk];
-  const isSun=date.getDay()===0;
+  const dayUpper=dayFullNames[date.getDay()].toUpperCase();
   const content=document.getElementById('tennisContent');
 
   const warmupRows=tennisWarmup.map(e=>{
@@ -1055,7 +905,7 @@ function openTennisModal(dk, date){
   content.innerHTML=`
     <div class="tennis-header">
       <button class="modal-close" onclick="closeTennisModal()">✕</button>
-      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tennis-border);margin-bottom:4px;">🎾 CLAY COURT · ${isSun?'SUNDAY':'TUESDAY'}</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tennis-border);margin-bottom:4px;">🎾 CLAY COURT · ${dayUpper}</div>
       <div class="tennis-header-title">${formatDate(date)} Tennis Day</div>
       <div class="tennis-header-sub">5-min pre-court warm-up · Post-play stretches</div>
       ${playedBlock}
@@ -1136,7 +986,7 @@ function renderModal(wi){
   const exDone=state.exDone[wi]||{};
   const warmupDone=state.warmupDone[wi]||{};
   const cdDone=state.cooldownDone[wi]||{};
-  const cdSet=cooldownSets[cooldownKeyMap[phase]];
+  const cdSet=cooldownSets[phase];
   const cd=cooldownMins[phase]||2;
   const total=getTotalMins(w);
   const wg=watchGuide[phase];
@@ -1188,7 +1038,7 @@ function renderModal(wi){
   document.getElementById('modalContent').innerHTML=`
     <div class="modal-header">
       <button class="modal-close" onclick="closeModalBtn()">✕</button>
-      <div class="modal-phase-tag" style="color:${phaseColors[phase]}">${phaseLabel[phase]}</div>
+      <div class="modal-phase-tag" style="color:${phaseTagColor(phase)}">${phaseLabelText(phase)}</div>
       <div class="modal-title">Day ${w.day}</div>
       <div class="modal-meta">${w.focus.map(f=>`<span>🎯 ${f}</span>`).join('')}</div>
       <div class="modal-time-breakdown">
@@ -1252,7 +1102,7 @@ function checkAutoComplete(wi){
   const w=workouts[wi];
   const allEx=w.exercises.every(e=>(state.exDone[wi]||{})[e.ex]);
   const allWu=warmupExercises.every(wu=>(state.warmupDone[wi]||{})[wu.key]);
-  const cdSet=cooldownSets[cooldownKeyMap[w.phase]];
+  const cdSet=cooldownSets[w.phase];
   const allCd=cdSet.every(cd=>(state.cooldownDone[wi]||{})[cd.key]);
   if(allEx&&allWu&&allCd&&!state.dayDone[wi]){
     state.dayDone[wi]=true; saveState(state);
@@ -1267,7 +1117,7 @@ function toggleDayDoneModal(wi,checked){
     workouts[wi].exercises.forEach(e=>{ state.exDone[wi][e.ex]=true; });
     if(!state.warmupDone[wi]) state.warmupDone[wi]={};
     warmupExercises.forEach(wu=>{ state.warmupDone[wi][wu.key]=true; });
-    const cdSet=cooldownSets[cooldownKeyMap[workouts[wi].phase]];
+    const cdSet=cooldownSets[workouts[wi].phase];
     if(!state.cooldownDone[wi]) state.cooldownDone[wi]={};
     cdSet.forEach(cd=>{ state.cooldownDone[wi][cd.key]=true; });
     showToast(`🎉 Day ${workouts[wi].day} complete!`);
@@ -1382,8 +1232,8 @@ function handleSummaryOverlay(e){
 function computeStreak(){
   // Current streak: consecutive done days counting back from today
   const today = dateKey(new Date());
-  let streak = 0, best = 0, cur = 0;
-  for(let wi=0; wi<30; wi++){
+  let best = 0, cur = 0;
+  for(let wi=0; wi<totalProgramDays; wi++){
     const dk = state.schedule[wi];
     if(!dk) continue;
     const done = !!state.dayDone[wi];
@@ -1392,7 +1242,7 @@ function computeStreak(){
   }
   // Current streak = consecutive from the last done day backwards
   let currentStreak = 0;
-  for(let wi=29; wi>=0; wi--){
+  for(let wi=totalProgramDays-1; wi>=0; wi--){
     if(state.dayDone[wi]) currentStreak++;
     else { if(state.schedule[wi] && state.schedule[wi] <= today) break; }
   }
@@ -1400,36 +1250,30 @@ function computeStreak(){
 }
 
 function computeFocusStats(){
-  // Count how many done days featured each focus area
-  const areas = {
-    'Core & Abs': {done:0, total:0, color:'#C4714A'},
-    'APT Fix':    {done:0, total:0, color:'#5C7358'},
-    'Arm Toning': {done:0, total:0, color:'#5B8DA6'},
-    'Inner Thighs':{done:0, total:0, color:'#A66080'},
-  };
-  const coreKeys   = ['deadBug','pelvicTilt','hollowBodyHold','reverseCrunch','fullPlank','modifiedPlank','mountainClimber','sidePlank','legRaiseBent'];
-  const aptKeys    = ['pelvicTilt','gluteBridge','birdDog','hipThrust','deadBug','hollowBodyHold'];
-  const armKeys    = ['bicepCurl','overheadPress','tricepKickback','lateralRaise','wallPushUp','kneePushUp','frontRaise','tricepOverhead','hammerCurl'];
-  const thighKeys  = ['innerThighSqueezeB','sumoSquat','innerThighLift','plateSumoSquat','lateralLunge'];
-
+  // Count how many done days featured each focus area (defined in program-data.json)
+  const areas = {};
+  Object.entries(focusAreas).forEach(([name, def])=>{
+    areas[name] = {done:0, total:0, color:def.color};
+  });
   workouts.forEach((w,wi)=>{
     const exKeys = w.exercises.map(e=>e.ex);
     const done = !!state.dayDone[wi];
-    if(exKeys.some(k=>coreKeys.includes(k)))    { areas['Core & Abs'].total++; if(done) areas['Core & Abs'].done++; }
-    if(exKeys.some(k=>aptKeys.includes(k)))     { areas['APT Fix'].total++;    if(done) areas['APT Fix'].done++; }
-    if(exKeys.some(k=>armKeys.includes(k)))     { areas['Arm Toning'].total++; if(done) areas['Arm Toning'].done++; }
-    if(exKeys.some(k=>thighKeys.includes(k)))   { areas['Inner Thighs'].total++; if(done) areas['Inner Thighs'].done++; }
+    Object.entries(focusAreas).forEach(([name, def])=>{
+      if(exKeys.some(k=>def.exerciseKeys.includes(k))){
+        areas[name].total++;
+        if(done) areas[name].done++;
+      }
+    });
   });
   return areas;
 }
 
 function computeTimeInvested(){
   let totalMins = 0, warmupMinsTotal = 0, cooldownMinsTotal = 0;
-  const cdMap = {1:2,2:3,3:3,4:4};
   workouts.forEach((w,wi)=>{
     if(!state.dayDone[wi]) return;
-    const cd = cdMap[w.phase]||2;
-    warmupMinsTotal += 2;
+    const cd = cooldownMins[w.phase]||2;
+    warmupMinsTotal += warmupMins;
     cooldownMinsTotal += cd;
     totalMins += getTotalMins(w);
   });
@@ -1438,34 +1282,38 @@ function computeTimeInvested(){
 }
 
 function getMotive(doneDays, streak){
+  const T = totalProgramDays;
   if(doneDays===0) return {icon:'🌱', title:"Every journey starts with Day 1", sub:"Your first workout is the most important one. You've got this."};
-  if(doneDays<5)   return {icon:'✨', title:"You've started — that's everything", sub:`${doneDays} days in. Momentum is building.`};
-  if(doneDays<10)  return {icon:'🔥', title:"The habit is forming", sub:`${doneDays} days done. Your body is already adapting.`};
-  if(doneDays<16)  return {icon:'💪', title:"Halfway there!", sub:`${doneDays} days complete. Your core is noticeably stronger.`};
-  if(doneDays<22)  return {icon:'⚡', title:"You're in the strength phase now", sub:`${doneDays} days done. This is where real change happens.`};
-  if(doneDays<28)  return {icon:'🏆', title:"Peak phase — you're almost there", sub:`${doneDays} days complete. The finish line is visible.`};
-  if(doneDays<30)  return {icon:'🌟', title:"Final push!", sub:`${doneDays} days done. Just ${30-doneDays} more to go.`};
-  return {icon:'🎉', title:"30 days complete — incredible!", sub:"You built a habit, fixed your posture, and transformed your mornings."};
+  if(doneDays<Math.ceil(T*0.17)) return {icon:'✨', title:"You've started — that's everything", sub:`${doneDays} days in. Momentum is building.`};
+  if(doneDays<Math.ceil(T*0.33)) return {icon:'🔥', title:"The habit is forming", sub:`${doneDays} days done. Your body is already adapting.`};
+  if(doneDays<Math.ceil(T*0.53)) return {icon:'💪', title:"Halfway there!", sub:`${doneDays} days complete. Your core is noticeably stronger.`};
+  if(doneDays<Math.ceil(T*0.73)) return {icon:'⚡', title:"You're in the strength phase now", sub:`${doneDays} days done. This is where real change happens.`};
+  if(doneDays<Math.ceil(T*0.93)) return {icon:'🏆', title:"Peak phase — you're almost there", sub:`${doneDays} days complete. The finish line is visible.`};
+  if(doneDays<T)   return {icon:'🌟', title:"Final push!", sub:`${doneDays} days done. Just ${T-doneDays} more to go.`};
+  return {icon:'🎉', title:`${T} days complete — incredible!`, sub:"You built a habit, fixed your posture, and transformed your mornings."};
 }
 
 function renderSummary(){
   const body = document.getElementById('summaryBody');
   const done = workouts.filter((_,wi)=>!!state.dayDone[wi]).length;
   const postponed = workouts.filter((_,wi)=>!!state.postponed[wi]).length;
-  const pct = Math.round((done/30)*100);
+  const pct = Math.round((done/totalProgramDays)*100);
   const streak = computeStreak();
   const focus = computeFocusStats();
   const time = computeTimeInvested();
   const motive = getMotive(done, streak.current);
   const today = dateKey(new Date());
 
-  // Phase breakdown
-  const phaseData = [
-    {name:'Phase 1',color:'var(--sage)',      total:8,  done: workouts.filter((w,wi)=>w.phase===1&&state.dayDone[wi]).length},
-    {name:'Phase 2',color:'#5B8DA6',          total:8,  done: workouts.filter((w,wi)=>w.phase===2&&state.dayDone[wi]).length},
-    {name:'Phase 3',color:'#A66080',          total:8,  done: workouts.filter((w,wi)=>w.phase===3&&state.dayDone[wi]).length},
-    {name:'Phase 4',color:'var(--gold)',      total:6,  done: workouts.filter((w,wi)=>w.phase===4&&state.dayDone[wi]).length},
-  ];
+  // Phase breakdown — derived from program-data.json
+  const phaseData = Object.entries(phases).map(([num, p])=>{
+    const phaseNum = Number(num);
+    return {
+      name: `Phase ${num}`,
+      color: p.barColor,
+      total: workouts.filter(w=>w.phase===phaseNum).length,
+      done:  workouts.filter((w,wi)=>w.phase===phaseNum && state.dayDone[wi]).length,
+    };
+  });
 
   // Tennis log
   const tennisPlayed = Object.values(state.tennisLog).filter(v=>v==='yes').length;
@@ -1510,12 +1358,11 @@ function renderSummary(){
 
   // ── DURATION BAR CHART ────────────────────────────────
   const maxMins = Math.max(...workouts.map(w=>getTotalMins(w)));
-  const phaseBarColors = ['','var(--sage)','#5B8DA6','#A66080','var(--gold)'];
   const durationBars = workouts.map((w,wi)=>{
     const total = getTotalMins(w);
     const isDone = !!state.dayDone[wi];
     const heightPct = Math.round((total/maxMins)*100);
-    const col = isDone ? 'var(--done-border)' : phaseBarColors[w.phase];
+    const col = isDone ? 'var(--done-border)' : phaseBarColor(w.phase);
     const cls = isDone ? 'done-bar' : 'undone-bar';
     return `<div class="chart-bar-col">
       <div class="chart-bar ${cls}" style="height:${heightPct}%;background:${col};"
@@ -1603,12 +1450,12 @@ function renderSummary(){
       <div class="stat-card">
         <div class="stat-num" style="color:var(--done-text)">${done}</div>
         <div class="stat-label">Days Done</div>
-        <div class="stat-sub">of 30</div>
+        <div class="stat-sub">of ${totalProgramDays}</div>
       </div>
       <div class="stat-card">
         <div class="stat-num" style="color:var(--terracotta)">${pct}%</div>
         <div class="stat-label">Complete</div>
-        <div class="stat-sub">${30-done} remaining</div>
+        <div class="stat-sub">${totalProgramDays-done} remaining</div>
       </div>
       <div class="stat-card">
         <div class="stat-num" style="color:#9A7C28">${streak.current}</div>
@@ -1633,11 +1480,11 @@ function renderSummary(){
       </div>
     </div>`:''}
 
-    <!-- 30-DAY TIMELINE DOTS -->
-    <div class="sum-section">30-day journey</div>
+    <!-- TIMELINE DOTS -->
+    <div class="sum-section">${totalProgramDays}-day journey</div>
     <div class="timeline-grid">${dots}</div>
     <div class="tl-label-row">
-      <span>Day 1</span><span>Day 10</span><span>Day 20</span><span>Day 30</span>
+      <span>Day 1</span><span>Day ${Math.round(totalProgramDays/3)}</span><span>Day ${Math.round(totalProgramDays*2/3)}</span><span>Day ${totalProgramDays}</span>
     </div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;">
       <span style="font-size:10px;display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--done-border);display:inline-block;"></span>Done</span>
@@ -1855,7 +1702,7 @@ function buildTomorrowPayload() {
 
   if (tmrIsRest && wi === -1) {
     // Tennis day tomorrow
-    const dayName = tomorrow.getDay() === 0 ? 'Sunday' : 'Tuesday';
+    const dayName = dayFullNames[tomorrow.getDay()];
     title = `🎾 Tennis tomorrow — ${formatDate(tomorrow)}`;
     body = `${dayName} tennis day! Don't forget your 5-min clay court warm-up before stepping on court.`;
   } else if (wi !== -1) {
@@ -1983,7 +1830,7 @@ function downloadIcs() {
     const notifDate = new Date(dt);
     notifDate.setDate(notifDate.getDate() - 1);
     notifDate.setHours(NOTIF_TIME_HOUR, NOTIF_TIME_MIN, 0, 0);
-    const dayName = dt.getDay() === 0 ? 'Sunday' : 'Tuesday';
+    const dayName = dayFullNames[dt.getDay()];
     const uid = `fitplan-tennis-${dateKey(dt)}@fitplan`;
     const dtstart = icsDateTime(notifDate);
     const dtend = icsDateTime(new Date(notifDate.getTime() + 15 * 60000));
@@ -2037,9 +1884,20 @@ if('serviceWorker' in navigator){
       .catch(()=>{});
   });
 }
-startInAppReminderCheck();
-initNotifPanel();
-buildCalendar();
+
+try {
+  loadProgramData();
+  startInAppReminderCheck();
+  initNotifPanel();
+  buildCalendar();
+} catch (err) {
+  console.error(err);
+  document.getElementById('calendarRoot').innerHTML =
+    `<div style="padding:32px;text-align:center;color:var(--terracotta);font-size:14px;">
+       <strong>Could not load program-data.js</strong><br>
+       <span style="font-size:12px;color:var(--mid-grey);">${err.message}</span>
+     </div>`;
+}
 </script>
 </body>
 </html>

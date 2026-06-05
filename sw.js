@@ -1,5 +1,5 @@
-const CACHE_NAME = 'fitness30-v2';
-const ASSETS = ['./index.html','./manifest.json'];
+const CACHE_NAME = 'fitness30-v4';
+const ASSETS = ['./index.html','./manifest.json','./program-data.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)));
@@ -18,6 +18,17 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (e.request.url.includes('fonts.googleapis') || e.request.url.includes('youtube')) {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    return;
+  }
+  // Network-first for the program data file so plan edits take effect on next load.
+  if (e.request.url.includes('program-data.js')) {
+    e.respondWith(
+      fetch(e.request).then(resp => {
+        const clone = resp.clone();
+        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+        return resp;
+      }).catch(() => caches.match(e.request))
+    );
     return;
   }
   e.respondWith(
