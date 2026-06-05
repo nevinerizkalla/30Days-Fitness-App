@@ -97,6 +97,13 @@ body{background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--charco
 .day-card.done-card{background:var(--done-bg);border-left-color:var(--done-border)!important;}
 .day-card.done-card .workout-day-num{color:var(--done-text)!important;}
 .day-card.postponed-card{background:var(--postponed-bg);border-left-color:var(--postponed-border)!important;opacity:.85;}
+.day-card.postponed-marker{
+  background:repeating-linear-gradient(45deg,var(--postponed-bg),var(--postponed-bg) 7px,#FFF9F3 7px,#FFF9F3 14px);
+  border:1.5px dashed var(--postponed-border);cursor:default;text-align:center;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:.9;}
+.postponed-marker-icon{font-size:22px;color:var(--postponed-border);margin:4px 0 2px;line-height:1;}
+.postponed-marker-label{font-size:10px;font-weight:700;color:#9A6800;letter-spacing:1.2px;text-transform:uppercase;}
+.postponed-marker-sub{font-size:10px;color:var(--mid-grey);margin-top:4px;line-height:1.3;padding:0 4px;}
 .day-card.empty-card{opacity:.15;cursor:default;pointer-events:none;}
 
 .day-num{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--mid-grey);margin-bottom:3px;}
@@ -629,26 +636,58 @@ function loadProgramData(){
   if(!state.schedule || state.schedule.length !== totalProgramDays) state.schedule = null;
 }
 
+// Returns the postponement for a workout index:
+//   number > 0  → push forward that many non-tennis days (cascading)
+//   'end'       → move to after the rest of the program
+//   0/false     → not postponed
+// Legacy values of `true` are treated as a 1-day push.
+function getPostponeAmount(wi){
+  const v = state.postponed[wi];
+  if(v === 'end') return 'end';
+  if(v === true) return 1;
+  const n = Number(v);
+  return (n > 0) ? n : 0;
+}
+
 function rebuildSchedule(){
-  const postponed = new Set(Object.keys(state.postponed).map(Number).filter(i=>state.postponed[i]));
   const avail=[];
   for(let d=0;d<250;d++){
     const dt=addDays(PROGRAM_START,d);
     if(!isDefaultRestDay(dt)) avail.push(dateKey(dt));
   }
-  const newSched=new Array(totalProgramDays).fill(null);
-  const used=new Set(); let si=0;
-  for(let wi=0;wi<totalProgramDays;wi++){
-    if(postponed.has(wi)) continue;
-    while(used.has(avail[si])) si++;
-    newSched[wi]=avail[si]; used.add(avail[si]); si++;
+  const newSched = new Array(totalProgramDays).fill(null);
+  const postponedFrom = {}; // dk -> wi of the workout originally scheduled there
+  const endQueue = [];
+  let si = 0;
+
+  for(let wi=0; wi<totalProgramDays; wi++){
+    const amt = getPostponeAmount(wi);
+    if(amt === 'end'){
+      // Mark the workout's would-be date, then defer placement to after the program.
+      if(avail[si]) postponedFrom[avail[si]] = wi;
+      endQueue.push(wi);
+      si++;
+      continue;
+    }
+    if(amt > 0){
+      // Skip `amt` non-tennis dates, marking each as the original slot.
+      for(let k=0; k<amt && avail[si]; k++){
+        postponedFrom[avail[si]] = wi;
+        si++;
+      }
+    }
+    newSched[wi] = avail[si] || null;
+    si++;
   }
-  for(let wi=0;wi<totalProgramDays;wi++){
-    if(!postponed.has(wi)) continue;
-    while(used.has(avail[si])) si++;
-    newSched[wi]=avail[si]; used.add(avail[si]); si++;
+
+  for(const wi of endQueue){
+    newSched[wi] = avail[si] || null;
+    si++;
   }
-  state.schedule=newSched; saveState(state);
+
+  state.schedule = newSched;
+  state.postponedFrom = postponedFrom;
+  saveState(state);
 }
 
 // ── PROGRESS ────────────────────────────────────────────────
@@ -678,21 +717,29 @@ function buildCalendar(){
   root.innerHTML='';
   const dateToWorkout={};
   state.schedule.forEach((dk,wi)=>{ if(dk) dateToWorkout[dk]=wi; });
-  const allDates=state.schedule.filter(Boolean).map(dk=>new Date(dk));
-  const lastDate=new Date(Math.max(...allDates.map(d=>d.getTime())));
-  const firstMon=getMonday(PROGRAM_START);
-  const lastSun=new Date(lastDate);
-  while(lastSun.getDay()!==0) lastSun.setDate(lastSun.getDate()+1);
+  const allDates=state.schedule.filter(Boolean).map(dk=>{
+    const [y,m,d]=dk.split('-').map(Number); return new Date(y,m-1,d);
+  });
+  // Also factor postponed-from dates in case they fall before the last workout (they always do, but keep robust)
+  const fromDates=Object.keys(state.postponedFrom||{}).map(dk=>{
+    const [y,m,d]=dk.split('-').map(Number); return new Date(y,m-1,d);
+  });
+  const lastDate=new Date(Math.max(...allDates.concat(fromDates).map(d=>d.getTime())));
+  // Calendar grid runs from the Sunday of PROGRAM_START's week through the Saturday
+  // of the week containing the last scheduled workout (no trailing empty week).
+  const firstSun=getMonday(PROGRAM_START);
+  const lastSat=new Date(lastDate);
+  while(lastSat.getDay()!==6) lastSat.setDate(lastSat.getDate()+1);
 
   const weeks=[];
-  let ws=new Date(firstMon);
-  while(ws<=lastSun){
+  let ws=new Date(firstSun);
+  while(ws<=lastSat){
     const week=[];
     for(let i=0;i<7;i++){
       const d=addDays(ws,i); const dk=dateKey(d);
       const wi=dateToWorkout.hasOwnProperty(dk)?dateToWorkout[dk]:null;
       const isRest=isDefaultRestDay(d);
-      const inRange=d>=PROGRAM_START&&d<=lastSun;
+      const inRange=d>=PROGRAM_START&&d<=lastSat;
       week.push({date:d,dk,wi,isRest,inRange});
     }
     weeks.push(week); ws=addDays(ws,7);
@@ -720,6 +767,8 @@ function buildCalendar(){
         else renderTennisCard(card,day);
       } else if(day.wi!==null){
         renderWorkoutCard(card,day);
+      } else if(state.postponedFrom && state.postponedFrom[day.dk]!==undefined){
+        renderPostponedMarkerCard(card,day,state.postponedFrom[day.dk]);
       } else {
         card.className='day-card rest empty-card';
         card.innerHTML=`<div class="day-num">${formatDate(day.date)}</div>`;
@@ -839,6 +888,24 @@ function renderBonusCard(card,day,wi){
     </div>
   `;
   card.addEventListener('click', e=>{ if(e.target.closest('button')) return; openModal(wi); });
+}
+
+function renderPostponedMarkerCard(card,day,wi){
+  const w=workouts[wi];
+  const newDk=state.schedule[wi];
+  let newStr='';
+  if(newDk){
+    const [y,m,d]=newDk.split('-').map(Number);
+    const newDate=new Date(y,m-1,d);
+    newStr=`${newDate.getDate()} ${monthNames[newDate.getMonth()]}`;
+  }
+  card.className=`day-card postponed-marker phase-${w.phase}`;
+  card.innerHTML=`
+    <div class="day-num">${formatDate(day.date)} · ${dayNames[day.date.getDay()]}</div>
+    <div class="postponed-marker-icon">↷</div>
+    <div class="postponed-marker-label">Postponed</div>
+    <div class="postponed-marker-sub">Day ${w.day} moved${newStr?` to ${newStr}`:' to end'}</div>
+  `;
 }
 
 // ── TENNIS MODAL ─────────────────────────────────────────────
@@ -1184,29 +1251,49 @@ function openPostpone(wi,dk,e){
   e.stopPropagation();
   const w=workouts[wi];
   const curDk=state.schedule[wi];
-  const curDate=curDk?new Date(curDk):new Date(PROGRAM_START);
+  let curDate;
+  if(curDk){ const [y,m,d]=curDk.split('-').map(Number); curDate=new Date(y,m-1,d); }
+  else curDate=new Date(PROGRAM_START);
   let nextDate=addDays(curDate,1);
   while(isDefaultRestDay(nextDate)) nextDate=addDays(nextDate,1);
   const nextStr=`${nextDate.getDate()} ${monthNames[nextDate.getMonth()]}`;
+  const amt=getPostponeAmount(wi);
+  const isPostponed=amt!==0;
   document.getElementById('postponeContent').innerHTML=`
     <div class="postpone-title">Postpone Day ${w.day}</div>
     <div class="postpone-sub">Schedule shifts forward, keeping Sundays & Tuesdays as tennis days.</div>
     <div class="postpone-btns">
-      <button class="postpone-opt" onclick="confirmPostpone(${wi})">
-        <strong>Push schedule forward</strong>
-        <span>Day ${w.day} moves to ${nextStr} — all later workouts shift accordingly</span>
+      <button class="postpone-opt" onclick="confirmPostpone(${wi},'push')">
+        <strong>Push to next day</strong>
+        <span>Day ${w.day} moves to ${nextStr} — all later workouts shift one day forward</span>
       </button>
-      <button class="postpone-opt" onclick="confirmPostpone(${wi})">
+      <button class="postpone-opt" onclick="confirmPostpone(${wi},'end')">
         <strong>Skip to end of program</strong>
-        <span>Day ${w.day} moves to after Day 30</span>
+        <span>Day ${w.day} moves to after Day ${totalProgramDays}</span>
       </button>
+      ${isPostponed?`<button class="postpone-opt" onclick="confirmPostpone(${wi},'undo')" style="border-color:rgba(196,113,74,.35);background:rgba(196,113,74,.04);">
+        <strong>Undo postponement</strong>
+        <span>Restore Day ${w.day} to its original date</span>
+      </button>`:''}
     </div>
     <button class="postpone-cancel" onclick="closePostponeModal()">Cancel</button>`;
   document.getElementById('postponeOverlay').classList.add('open');
 }
-function confirmPostpone(wi){
-  state.postponed[wi]=true; saveState(state);
-  closePostponeModal(); buildCalendar(); showToast(`Day ${workouts[wi].day} postponed ↷`);
+function confirmPostpone(wi,mode){
+  if(mode==='undo'){
+    delete state.postponed[wi];
+  } else if(mode==='end'){
+    state.postponed[wi]='end';
+  } else {
+    // 'push' (default): cascade forward one more day. Re-postponing increments.
+    const cur=getPostponeAmount(wi);
+    state.postponed[wi]=(typeof cur==='number'&&cur>0)?cur+1:1;
+  }
+  saveState(state);
+  closePostponeModal(); buildCalendar();
+  showToast(mode==='undo'
+    ? `Day ${workouts[wi].day} restored`
+    : `Day ${workouts[wi].day} postponed ↷`);
 }
 function closePostponeModal(){
   document.getElementById('postponeOverlay').classList.remove('open');
@@ -1374,11 +1461,14 @@ function renderSummary(){
   // Build a Mon→Sun grid from program start to last day
   const dateToWI = {};
   state.schedule.forEach((dk,wi)=>{ if(dk) dateToWI[dk]=wi; });
-  const allSchedDates = state.schedule.filter(Boolean).map(dk=>new Date(dk));
+  const allSchedDates = state.schedule.filter(Boolean).map(dk=>{
+    const [y,m,d]=dk.split('-').map(Number); return new Date(y,m-1,d);
+  });
   const hmLastDate = allSchedDates.length ? new Date(Math.max(...allSchedDates.map(d=>d.getTime()))) : new Date(PROGRAM_START);
   const hmFirst = getMonday(PROGRAM_START);
+  // End grid at the Saturday of the last workout's week — no trailing empty week.
   const hmLast = new Date(hmLastDate);
-  while(hmLast.getDay()!==0) hmLast.setDate(hmLast.getDate()+1);
+  while(hmLast.getDay()!==6) hmLast.setDate(hmLast.getDate()+1);
   const hmToday = dateKey(new Date());
   let hmCells = [];
   let cur = new Date(hmFirst);
@@ -1401,6 +1491,10 @@ function renderSummary(){
       const tip = `Day ${workouts[wi].day} (${formatDate(cur)}): ${isDone?'✓ Done':isPost?'↷ Moved':isFut?'Upcoming':'Pending'}`;
       const lbl = isDone?'✓':isPost?'↷':workouts[wi].day;
       hmCells.push(`<div class="hm-cell ${cls}" data-tip="${tip}">${lbl}</div>`);
+    } else if(state.postponedFrom && state.postponedFrom[dk]!==undefined){
+      const fromWi = state.postponedFrom[dk];
+      const tip = `${formatDate(cur)}: Day ${workouts[fromWi].day} postponed from here`;
+      hmCells.push(`<div class="hm-cell hm-postponed" data-tip="${tip}" style="opacity:.55">↷</div>`);
     } else {
       hmCells.push(`<div class="hm-cell hm-empty"></div>`);
     }
