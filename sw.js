@@ -1,5 +1,28 @@
-const CACHE_NAME = 'fitness30-v4';
-const ASSETS = ['./index.html','./manifest.json','./program-data.js'];
+const CACHE_NAME = 'fitness30-v5';
+const ASSETS = [
+  './index.html',
+  './manifest.json',
+  './program-data.js',
+  './css/base.css',
+  './css/header.css',
+  './css/calendar.css',
+  './css/modals.css',
+  './css/summary.css',
+  './css/components.css',
+  './js/storage.js',
+  './js/program.js',
+  './js/schedule.js',
+  './js/ui.js',
+  './js/calendar.js',
+  './js/workout-modal.js',
+  './js/tennis-modal.js',
+  './js/postpone-modal.js',
+  './js/summary.js',
+  './js/export.js',
+  './js/notifications.js',
+  './js/pwa.js',
+  './js/app.js',
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)));

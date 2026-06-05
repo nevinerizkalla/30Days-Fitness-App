@@ -1,0 +1,134 @@
+/* CALENDAR */
+.calendar-container{padding:24px 40px 80px;max-width:1400px;margin:0 auto;}
+.week-section{margin-bottom:4px;}
+.week-label{font-family:'Playfair Display',serif;font-size:12px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;color:var(--mid-grey);margin:22px 0 10px;display:flex;align-items:center;gap:12px;
+  cursor:pointer;user-select:none;transition:color .15s;}
+.week-label:hover{color:var(--charcoal);}
+.week-label::after{content:'';flex:1;height:1px;background:var(--light-grey);}
+.week-chevron{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;
+  border-radius:50%;background:var(--light-grey);color:var(--charcoal);font-size:9px;
+  transition:transform .25s ease,background .15s;flex-shrink:0;}
+.week-label:hover .week-chevron{background:var(--sage-light);}
+.week-section.collapsed .week-chevron{transform:rotate(-90deg);}
+.week-section.is-current .week-label{color:var(--terracotta);}
+.week-section.is-current .week-chevron{background:var(--terracotta);color:white;}
+.week-meta{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:.5px;
+  text-transform:none;color:var(--mid-grey);}
+.week-section.is-current .week-meta{color:var(--terracotta);}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:4px;
+  transition:opacity .2s;}
+.week-section.collapsed .week-grid{display:none;}
+
+/* TODAY HIGHLIGHT */
+.day-card.is-today{
+  box-shadow:0 0 0 2px var(--terracotta),0 12px 32px rgba(196,113,74,.28);
+  transform:translateY(-2px);
+  animation:todayPulse 2.4s ease-in-out infinite;
+  z-index:2;
+}
+.day-card.is-today::before{
+  content:'TODAY';
+  position:absolute;top:-9px;left:50%;transform:translateX(-50%);
+  background:var(--terracotta);color:white;font-size:9px;font-weight:700;
+  letter-spacing:1.5px;padding:2px 8px;border-radius:8px;
+  box-shadow:0 2px 6px rgba(196,113,74,.4);
+  white-space:nowrap;
+}
+@keyframes todayPulse{
+  0%,100%{box-shadow:0 0 0 2px var(--terracotta),0 12px 32px rgba(196,113,74,.28);}
+  50%{box-shadow:0 0 0 2px var(--terracotta),0 12px 36px rgba(196,113,74,.5);}
+}
+.day-header{text-align:center;font-size:10px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--mid-grey);padding-bottom:5px;}
+.day-header.rest-day{color:var(--rest-text);}
+
+/* DAY CARDS */
+.day-card{background:white;border-radius:12px;padding:11px 10px;cursor:pointer;
+  transition:transform .18s,box-shadow .18s;border:1.5px solid transparent;
+  position:relative;min-height:145px;}
+.day-card:not(.rest):not(.empty-card):hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1);}
+.day-card.phase-1{border-left:3px solid var(--sage);}
+.day-card.phase-2{border-left:3px solid #5B8DA6;}
+.day-card.phase-3{border-left:3px solid #A66080;}
+.day-card.phase-4{border-left:3px solid var(--gold);}
+.day-card.rest{background:var(--rest-bg);cursor:pointer;border-left:none;opacity:.85;}
+.day-card.rest-only{
+  background:repeating-linear-gradient(135deg,var(--rest-bg),var(--rest-bg) 8px,#E8E4DF 8px,#E8E4DF 9px);
+  cursor:default;opacity:.75;text-align:center;
+  display:flex;flex-direction:column;align-items:center;
+}
+.day-card.rest-only .day-num{align-self:stretch;text-align:center;}
+.day-card.rest-only .rest-icon{opacity:.55;}
+.day-card.rest-only .bonus-add-btn{cursor:pointer;}
+.day-card.bonus{background:var(--bonus-bg);border-left:3px solid var(--bonus-border);cursor:pointer;opacity:1;}
+.day-card.done-card{background:var(--done-bg);border-left-color:var(--done-border)!important;}
+.day-card.done-card .workout-day-num{color:var(--done-text)!important;}
+.day-card.postponed-card{background:var(--postponed-bg);border-left-color:var(--postponed-border)!important;opacity:.85;}
+.day-card.postponed-marker{
+  background:repeating-linear-gradient(45deg,var(--postponed-bg),var(--postponed-bg) 7px,#FFF9F3 7px,#FFF9F3 14px);
+  border:1.5px dashed var(--postponed-border);cursor:default;text-align:center;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:.9;}
+.postponed-marker-icon{font-size:22px;color:var(--postponed-border);margin:4px 0 2px;line-height:1;}
+.postponed-marker-label{font-size:10px;font-weight:700;color:#9A6800;letter-spacing:1.2px;text-transform:uppercase;}
+.postponed-marker-sub{font-size:10px;color:var(--mid-grey);margin-top:4px;line-height:1.3;padding:0 4px;}
+.day-card.empty-card{opacity:.15;cursor:default;pointer-events:none;}
+
+.day-num{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--mid-grey);margin-bottom:3px;}
+.day-card.rest .day-num{color:var(--rest-text);}
+.workout-day-num{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;line-height:1;margin-bottom:4px;}
+.phase-1 .workout-day-num{color:var(--sage-dark);}.phase-2 .workout-day-num{color:#3A6D8C;}
+.phase-3 .workout-day-num{color:#804060;}.phase-4 .workout-day-num{color:#9A7C28;}
+
+/* TIME BREAKDOWN PILL ON CARD */
+.time-breakdown{display:flex;gap:3px;margin-bottom:6px;flex-wrap:wrap;}
+.tb-seg{font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;white-space:nowrap;}
+.tb-warmup{background:rgba(143,166,136,.18);color:var(--sage-dark);}
+.tb-workout{background:rgba(196,113,74,.13);color:#8B4020;}
+.tb-cooldown{background:rgba(91,141,166,.15);color:#2A5A78;}
+.card-total-time{font-size:15px;font-weight:800;color:var(--charcoal);margin-bottom:2px;line-height:1;
+  font-family:'Playfair Display',serif;letter-spacing:-.3px;}
+.card-total-time-sub{font-size:9px;color:var(--mid-grey);}
+
+.rest-icon{font-size:22px;margin:5px 0 3px;}
+.rest-label{font-size:11px;font-weight:600;color:var(--rest-text);letter-spacing:1px;text-transform:uppercase;}
+.rest-sub{font-size:10px;color:var(--rest-text);margin-top:2px;}
+
+.exercise-list{list-style:none;}
+.exercise-list li{font-size:10.5px;color:var(--charcoal);padding:1.5px 0;
+  display:flex;align-items:flex-start;gap:4px;line-height:1.4;}
+.exercise-list li::before{content:'·';flex-shrink:0;color:var(--terracotta);font-size:13px;line-height:1.2;}
+.exercise-list li.done-ex{text-decoration:line-through;color:var(--mid-grey);opacity:.6;}
+.exercise-list li.done-ex::before{color:var(--done-border);}
+
+/* CARD STATUS & ACTIONS */
+.card-status{position:absolute;top:9px;right:9px;font-size:9px;font-weight:700;
+  padding:2px 7px;border-radius:7px;letter-spacing:.5px;text-transform:uppercase;}
+.status-done{background:var(--done-border);color:white;}
+.status-postponed{background:var(--postponed-border);color:white;}
+.status-bonus{background:var(--bonus-border);color:white;}
+.card-actions{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;}
+.card-btn{font-size:10px;font-weight:600;padding:3px 8px;border-radius:7px;border:none;
+  cursor:pointer;transition:all .15s;flex-shrink:0;font-family:'DM Sans',sans-serif;}
+.btn-complete{background:rgba(126,200,122,.15);color:var(--done-text);border:1px solid rgba(126,200,122,.4);}
+.btn-complete:hover,.btn-complete.active{background:var(--done-border);color:white;}
+.btn-postpone{background:rgba(255,183,77,.12);color:#9A6800;border:1px solid rgba(255,183,77,.4);}
+.btn-postpone:hover,.btn-postpone.postponed{background:var(--postponed-border);color:white;}
+.bonus-add-btn{width:100%;margin-top:7px;font-size:11px;font-weight:600;padding:5px;
+  border-radius:8px;border:1px dashed var(--bonus-border);background:transparent;
+  color:#3A5AA0;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.bonus-add-btn:hover{background:var(--bonus-bg);border-style:solid;}
+
+/* TENNIS CARD */
+.tennis-question{margin-top:8px;}
+.tennis-q-label{font-size:10px;font-weight:700;color:var(--mid-grey);margin-bottom:5px;letter-spacing:.5px;}
+.tennis-btns{display:flex;gap:5px;}
+.tennis-btn{flex:1;font-size:10px;font-weight:700;padding:5px 4px;border-radius:8px;border:none;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;letter-spacing:.3px;}
+.tennis-yes{background:rgba(92,158,85,.15);color:var(--tennis-border);border:1px solid rgba(92,158,85,.35);}
+.tennis-yes.selected,.tennis-yes:hover{background:var(--tennis-border);color:white;}
+.tennis-no{background:rgba(196,113,74,.12);color:var(--terracotta);border:1px solid rgba(196,113,74,.3);}
+.tennis-no.selected,.tennis-no:hover{background:var(--terracotta);color:white;}
+.tennis-logged{font-size:10px;font-weight:600;padding:4px 8px;border-radius:8px;margin-top:5px;text-align:center;}
+.tennis-played{background:rgba(92,158,85,.15);color:var(--tennis-border);}
+.tennis-skipped{background:rgba(196,113,74,.12);color:var(--terracotta);}

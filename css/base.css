@@ -1,0 +1,30 @@
+:root {
+  --cream:#FAF7F2; --warm-white:#FFF9F3;
+  --sage:#8FA688; --sage-light:#B8C9B4; --sage-dark:#5C7358;
+  --terracotta:#C4714A; --terracotta-light:#E8A882;
+  --charcoal:#2C2C2C; --mid-grey:#7A7A7A; --light-grey:#E8E4DF;
+  --gold:#C9A84C; --rest-bg:#F0EDE8; --rest-text:#A09890;
+  --week1:#EFF4EE; --week2:#EAF0F5; --week3:#F5EEF0; --week4:#F5F2E8;
+  --done-bg:#EEF7ED; --done-border:#7EC87A; --done-text:#3A7A36;
+  --postponed-bg:#FFF3E0; --postponed-border:#FFB74D;
+  --bonus-bg:#EEF3FF; --bonus-border:#7B9FE0;
+  --tennis-bg:#F0F7EE; --tennis-border:#5C9E55;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--charcoal);min-height:100vh;
+  padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);}
+
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--light-grey);border-radius:3px;}
+
+@media(max-width:900px){
+  .week-grid{grid-template-columns:repeat(4,1fr);}
+  .phase-strip{grid-template-columns:repeat(2,1fr);}
+  .calendar-container{padding:14px 10px 80px;}
+  .hero,.progress-banner,.legend-bar{padding-left:16px;padding-right:16px;}
+}
+@media(max-width:580px){
+  .week-grid{grid-template-columns:repeat(3,1fr);}
+  .modal,.tennis-modal-card{border-radius:14px;}
+  .modal-header,.modal-body,.tennis-header{padding-left:16px;padding-right:16px;}
+}
