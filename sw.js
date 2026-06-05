@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fitness30-v5';
+const CACHE_NAME = 'fitness30-v7';
 const ASSETS = [
   './index.html',
   './manifest.json',

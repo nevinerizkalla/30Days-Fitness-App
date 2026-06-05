@@ -132,3 +132,12 @@
 .tennis-logged{font-size:10px;font-weight:600;padding:4px 8px;border-radius:8px;margin-top:5px;text-align:center;}
 .tennis-played{background:rgba(92,158,85,.15);color:var(--tennis-border);}
 .tennis-skipped{background:rgba(196,113,74,.12);color:var(--terracotta);}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .week-grid{grid-template-columns:repeat(4,1fr);}
+  .calendar-container{padding:14px 10px 80px;}
+}
+@media(max-width:580px){
+  .week-grid{grid-template-columns:repeat(3,1fr);}
+}

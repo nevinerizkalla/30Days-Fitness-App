@@ -16,15 +16,3 @@ body{background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--charco
 
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--light-grey);border-radius:3px;}
-
-@media(max-width:900px){
-  .week-grid{grid-template-columns:repeat(4,1fr);}
-  .phase-strip{grid-template-columns:repeat(2,1fr);}
-  .calendar-container{padding:14px 10px 80px;}
-  .hero,.progress-banner,.legend-bar{padding-left:16px;padding-right:16px;}
-}
-@media(max-width:580px){
-  .week-grid{grid-template-columns:repeat(3,1fr);}
-  .modal,.tennis-modal-card{border-radius:14px;}
-  .modal-header,.modal-body,.tennis-header{padding-left:16px;padding-right:16px;}
-}

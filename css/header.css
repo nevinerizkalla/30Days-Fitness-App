@@ -64,3 +64,9 @@
 .notif-status{font-size:11px;font-weight:600;padding:5px 12px;border-radius:12px;}
 .notif-on{background:rgba(126,200,122,.2);color:var(--done-border);}
 .notif-off{background:rgba(255,255,255,.07);color:rgba(255,255,255,.45);}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .phase-strip{grid-template-columns:repeat(2,1fr);}
+  .hero,.progress-banner,.legend-bar{padding-left:16px;padding-right:16px;}
+}
