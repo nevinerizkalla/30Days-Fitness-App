@@ -75,10 +75,45 @@ body{background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--charco
 
 /* CALENDAR */
 .calendar-container{padding:24px 40px 80px;max-width:1400px;margin:0 auto;}
+.week-section{margin-bottom:4px;}
 .week-label{font-family:'Playfair Display',serif;font-size:12px;font-weight:700;letter-spacing:2px;
-  text-transform:uppercase;color:var(--mid-grey);margin:22px 0 10px;display:flex;align-items:center;gap:12px;}
+  text-transform:uppercase;color:var(--mid-grey);margin:22px 0 10px;display:flex;align-items:center;gap:12px;
+  cursor:pointer;user-select:none;transition:color .15s;}
+.week-label:hover{color:var(--charcoal);}
 .week-label::after{content:'';flex:1;height:1px;background:var(--light-grey);}
-.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:4px;}
+.week-chevron{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;
+  border-radius:50%;background:var(--light-grey);color:var(--charcoal);font-size:9px;
+  transition:transform .25s ease,background .15s;flex-shrink:0;}
+.week-label:hover .week-chevron{background:var(--sage-light);}
+.week-section.collapsed .week-chevron{transform:rotate(-90deg);}
+.week-section.is-current .week-label{color:var(--terracotta);}
+.week-section.is-current .week-chevron{background:var(--terracotta);color:white;}
+.week-meta{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:.5px;
+  text-transform:none;color:var(--mid-grey);}
+.week-section.is-current .week-meta{color:var(--terracotta);}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:4px;
+  transition:opacity .2s;}
+.week-section.collapsed .week-grid{display:none;}
+
+/* TODAY HIGHLIGHT */
+.day-card.is-today{
+  box-shadow:0 0 0 2px var(--terracotta),0 12px 32px rgba(196,113,74,.28);
+  transform:translateY(-2px);
+  animation:todayPulse 2.4s ease-in-out infinite;
+  z-index:2;
+}
+.day-card.is-today::before{
+  content:'TODAY';
+  position:absolute;top:-9px;left:50%;transform:translateX(-50%);
+  background:var(--terracotta);color:white;font-size:9px;font-weight:700;
+  letter-spacing:1.5px;padding:2px 8px;border-radius:8px;
+  box-shadow:0 2px 6px rgba(196,113,74,.4);
+  white-space:nowrap;
+}
+@keyframes todayPulse{
+  0%,100%{box-shadow:0 0 0 2px var(--terracotta),0 12px 32px rgba(196,113,74,.28);}
+  50%{box-shadow:0 0 0 2px var(--terracotta),0 12px 36px rgba(196,113,74,.5);}
+}
 .day-header{text-align:center;font-size:10px;font-weight:700;letter-spacing:1.5px;
   text-transform:uppercase;color:var(--mid-grey);padding-bottom:5px;}
 .day-header.rest-day{color:var(--rest-text);}
@@ -93,6 +128,14 @@ body{background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--charco
 .day-card.phase-3{border-left:3px solid #A66080;}
 .day-card.phase-4{border-left:3px solid var(--gold);}
 .day-card.rest{background:var(--rest-bg);cursor:pointer;border-left:none;opacity:.85;}
+.day-card.rest-only{
+  background:repeating-linear-gradient(135deg,var(--rest-bg),var(--rest-bg) 8px,#E8E4DF 8px,#E8E4DF 9px);
+  cursor:default;opacity:.75;text-align:center;
+  display:flex;flex-direction:column;align-items:center;
+}
+.day-card.rest-only .day-num{align-self:stretch;text-align:center;}
+.day-card.rest-only .rest-icon{opacity:.55;}
+.day-card.rest-only .bonus-add-btn{cursor:pointer;}
 .day-card.bonus{background:var(--bonus-bg);border-left:3px solid var(--bonus-border);cursor:pointer;opacity:1;}
 .day-card.done-card{background:var(--done-bg);border-left-color:var(--done-border)!important;}
 .day-card.done-card .workout-day-num{color:var(--done-text)!important;}
@@ -417,6 +460,23 @@ body{background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--charco
   .ex-comp-name{width:110px;}
 }
 
+/* CLEAR PROGRESS BUTTON */
+.clear-progress-btn{width:100%;padding:12px 16px;border-radius:12px;
+  border:1.5px solid rgba(192,57,43,.35);background:rgba(192,57,43,.06);
+  color:#c0392b;font-size:13px;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:all .2s;letter-spacing:.3px;}
+.clear-progress-btn:hover{background:#c0392b;color:white;border-color:#c0392b;}
+
+/* EXPORT BUTTONS */
+.export-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.export-btn{padding:12px 14px;border-radius:12px;border:1.5px solid var(--sage-light);
+  background:rgba(143,166,136,.08);color:var(--sage-dark);font-size:13px;font-weight:700;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;letter-spacing:.3px;
+  display:flex;align-items:center;justify-content:center;gap:8px;}
+.export-btn:hover{background:var(--sage);color:white;border-color:var(--sage);}
+.export-btn .export-icon{font-size:16px;}
+@media(max-width:420px){.export-row{grid-template-columns:1fr;}}
+
 /* NOTIFICATION PANEL */
 .notif-panel{background:var(--charcoal);padding:14px 40px;display:flex;align-items:center;
   gap:14px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.07);}
@@ -559,6 +619,24 @@ body{background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--charco
 <div class="modal-overlay" id="postponeOverlay" onclick="handlePostponeOverlay(event)">
   <div class="postpone-modal" id="postponeContent"></div>
 </div>
+<!-- CLEAR PROGRESS CONFIRMATION MODAL -->
+<div class="modal-overlay" id="clearProgressOverlay" onclick="handleClearProgressOverlay(event)">
+  <div class="postpone-modal" id="clearProgressContent">
+    <div class="postpone-title" style="color:#c0392b;">⚠️ Clear all progress?</div>
+    <div class="postpone-sub">
+      This will erase every completed day, exercise check, postponement, bonus workout, and tennis log.
+      <strong style="display:block;margin-top:6px;color:var(--charcoal);">This action cannot be undone.</strong>
+    </div>
+    <div class="postpone-btns">
+      <button class="postpone-opt" onclick="confirmClearProgress()"
+              style="border-color:rgba(192,57,43,.4);background:rgba(192,57,43,.05);">
+        <strong style="color:#c0392b;">Yes, clear everything</strong>
+        <span>Reset the program to its starting state</span>
+      </button>
+    </div>
+    <button class="postpone-cancel" onclick="closeClearProgress()">Cancel</button>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -575,6 +653,43 @@ let state = loadState();
 });
 // Schedule length is validated against totalProgramDays inside loadProgramData()
 
+// One-time migration: dateKey() used to return UTC dates. For users in positive
+// UTC offsets (e.g. Cairo +2/+3) every stored dk was one day behind local. Shift
+// the affected stored keys forward by 1 day so they line up with the corrected
+// local dateKey. state.schedule and state.postponedFrom are rebuilt each load
+// by rebuildSchedule(), so they don't need explicit migration.
+function migrateDateKeysOnce(){
+  if(state.dateKeysFixed) return;
+  if(new Date().getTimezoneOffset() >= 0){ state.dateKeysFixed = true; saveState(state); return; }
+  const shift = (dk)=>{
+    const [y,m,d] = dk.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    dt.setDate(dt.getDate() + 1);
+    return dateKey(dt);
+  };
+  const remap = (obj)=>{
+    const out = {};
+    Object.entries(obj||{}).forEach(([k,v])=>{ out[shift(k)] = v; });
+    return out;
+  };
+  const remapPrefixed = (obj, prefix)=>{
+    const out = {};
+    Object.entries(obj||{}).forEach(([k,v])=>{
+      if(k.startsWith(prefix)) out[prefix + shift(k.slice(prefix.length))] = v;
+      else out[k] = v;
+    });
+    return out;
+  };
+  state.tennisLog = remap(state.tennisLog);
+  state.bonusActivated = remap(state.bonusActivated);
+  state.dayDone = remapPrefixed(state.dayDone, 'bonus_');
+  state.warmupDone = remapPrefixed(state.warmupDone, 'tennis_');
+  state.cooldownDone = remapPrefixed(state.cooldownDone, 'tennis_');
+  state.dateKeysFixed = true;
+  saveState(state);
+}
+migrateDateKeysOnce();
+
 // ── PROGRAM DATA (loaded from program-data.js) ─────────────
 // All plan-specific config (workouts, videos, tennis days, warm-ups, cool-downs,
 // phase definitions, program start date) lives in program-data.js as PROGRAM_DATA.
@@ -589,6 +704,7 @@ let workouts = [];
 let cooldownMins = {};
 let warmupMins = 2;
 let restDayWeekdays = [];
+let tennisWeekdays = [];
 let totalProgramDays = 30;
 let phases = {};
 let focusAreas = {};
@@ -604,7 +720,13 @@ const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','N
 const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const dayFullNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 function isDefaultRestDay(d){ return restDayWeekdays.includes(d.getDay()); }
-function dateKey(d){ return d.toISOString().slice(0,10); }
+function isTennisDay(d){ return tennisWeekdays.includes(d.getDay()); }
+function dateKey(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
 function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
 
 function loadProgramData(){
@@ -627,6 +749,7 @@ function loadProgramData(){
   cooldownMins      = {};
   Object.entries(data.program.cooldownMinsByPhase).forEach(([k,v])=>{ cooldownMins[Number(k)] = v; });
   restDayWeekdays   = data.program.restDayWeekdays;
+  tennisWeekdays    = data.program.tennisWeekdays || [];
   totalProgramDays  = data.program.totalDays;
 
   const [y,m,d] = data.program.startDate.split('-').map(Number);
@@ -746,15 +869,34 @@ function buildCalendar(){
   }
 
   const hdr=document.createElement('div'); hdr.className='week-grid';
-  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(dn=>{
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach((dn,idx)=>{
     const h=document.createElement('div');
-    h.className='day-header'+(dn==='Sun'||dn==='Tue'?' rest-day':'');
+    h.className='day-header'+(restDayWeekdays.includes(idx)?' rest-day':'');
     h.textContent=dn; hdr.appendChild(h);
   }); root.appendChild(hdr);
 
+  if(!state.weekToggle) state.weekToggle = {};
+  const todayDk = dateKey(new Date());
+  let todayCard = null;
+
   weeks.forEach((week,wi)=>{
+    const containsToday = week.some(d=>d.dk===todayDk && d.inRange);
+    const lastDk = week[week.length-1].dk;
+    const isPast = lastDk < todayDk && !containsToday;
+    const override = state.weekToggle[wi]; // 'open' | 'closed' | undefined
+    const collapsed = override ? override==='closed' : isPast;
+
+    const section=document.createElement('section');
+    section.className='week-section'+(collapsed?' collapsed':'')+(containsToday?' is-current':'');
+    section.dataset.weekIndex=wi;
+
     const lbl=document.createElement('div'); lbl.className='week-label';
-    lbl.textContent=`Week ${wi+1}`; root.appendChild(lbl);
+    const firstDate=week[0].date, lastDate=week[6].date;
+    const rangeStr=`${formatDate(firstDate)} – ${formatDate(lastDate)}`;
+    lbl.innerHTML=`<span class="week-chevron">▼</span>Week ${wi+1}<span class="week-meta">${rangeStr}${containsToday?' · this week':''}</span>`;
+    lbl.addEventListener('click',()=>toggleWeek(wi));
+    section.appendChild(lbl);
+
     const grid=document.createElement('div'); grid.className='week-grid';
     week.forEach(day=>{
       const card=document.createElement('div');
@@ -764,7 +906,8 @@ function buildCalendar(){
       } else if(day.isRest && day.wi===null){
         const bonusWi=state.bonusActivated[day.dk];
         if(bonusWi!==undefined) renderBonusCard(card,day,bonusWi);
-        else renderTennisCard(card,day);
+        else if(isTennisDay(day.date)) renderTennisCard(card,day);
+        else renderRestCard(card,day);
       } else if(day.wi!==null){
         renderWorkoutCard(card,day);
       } else if(state.postponedFrom && state.postponedFrom[day.dk]!==undefined){
@@ -773,11 +916,33 @@ function buildCalendar(){
         card.className='day-card rest empty-card';
         card.innerHTML=`<div class="day-num">${formatDate(day.date)}</div>`;
       }
+      if(day.dk===todayDk && day.inRange && !card.classList.contains('empty-card')){
+        card.classList.add('is-today');
+        todayCard=card;
+      }
       grid.appendChild(card);
     });
-    root.appendChild(grid);
+    section.appendChild(grid);
+    root.appendChild(section);
   });
   updateProgress();
+
+  if(todayCard && !window._scrolledToToday){
+    window._scrolledToToday=true;
+    requestAnimationFrame(()=>{
+      todayCard.scrollIntoView({block:'center',behavior:'smooth'});
+    });
+  }
+}
+
+function toggleWeek(wi){
+  const section=document.querySelector(`.week-section[data-week-index="${wi}"]`);
+  if(!section) return;
+  const willCollapse=!section.classList.contains('collapsed');
+  section.classList.toggle('collapsed',willCollapse);
+  if(!state.weekToggle) state.weekToggle={};
+  state.weekToggle[wi] = willCollapse ? 'closed' : 'open';
+  saveState(state);
 }
 
 function getMonday(d){
@@ -786,6 +951,18 @@ function getMonday(d){
   dt.setDate(dt.getDate()-dt.getDay()); return dt;
 }
 function formatDate(d){ return `${d.getDate()} ${monthNames[d.getMonth()]}`; }
+
+function renderRestCard(card,day){
+  const dk=day.dk;
+  card.className='day-card rest rest-only';
+  card.innerHTML=`
+    <div class="day-num">${formatDate(day.date)} · ${dayNames[day.date.getDay()]}</div>
+    <div class="rest-icon">🛌</div>
+    <div class="rest-label">Rest Day</div>
+    <div class="rest-sub">Recovery &amp; sleep</div>
+    <button class="bonus-add-btn" onclick="activateBonus('${dk}',event)">+ Optional Workout</button>
+  `;
+}
 
 function renderTennisCard(card,day){
   const dk=day.dk;
@@ -1259,18 +1436,22 @@ function openPostpone(wi,dk,e){
   const nextStr=`${nextDate.getDate()} ${monthNames[nextDate.getMonth()]}`;
   const amt=getPostponeAmount(wi);
   const isPostponed=amt!==0;
+  const isLast=wi===totalProgramDays-1;
+  const pushSub=isLast
+    ? `Day ${w.day} moves to ${nextStr}`
+    : `Day ${w.day} moves to ${nextStr} — all later workouts shift one day forward`;
   document.getElementById('postponeContent').innerHTML=`
     <div class="postpone-title">Postpone Day ${w.day}</div>
     <div class="postpone-sub">Schedule shifts forward, keeping Sundays & Tuesdays as tennis days.</div>
     <div class="postpone-btns">
       <button class="postpone-opt" onclick="confirmPostpone(${wi},'push')">
         <strong>Push to next day</strong>
-        <span>Day ${w.day} moves to ${nextStr} — all later workouts shift one day forward</span>
+        <span>${pushSub}</span>
       </button>
-      <button class="postpone-opt" onclick="confirmPostpone(${wi},'end')">
+      ${!isLast?`<button class="postpone-opt" onclick="confirmPostpone(${wi},'end')">
         <strong>Skip to end of program</strong>
         <span>Day ${w.day} moves to after Day ${totalProgramDays}</span>
-      </button>
+      </button>`:''}
       ${isPostponed?`<button class="postpone-opt" onclick="confirmPostpone(${wi},'undo')" style="border-color:rgba(196,113,74,.35);background:rgba(196,113,74,.04);">
         <strong>Undo postponement</strong>
         <span>Restore Day ${w.day} to its original date</span>
@@ -1300,7 +1481,34 @@ function closePostponeModal(){
 }
 function handlePostponeOverlay(e){ if(e.target===document.getElementById('postponeOverlay')) closePostponeModal(); }
 
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeModalBtn(); closeTennisModal(); closePostponeModal(); closeSummary(); } });
+// ── CLEAR PROGRESS ──────────────────────────────────────────
+function openClearProgress(){
+  document.getElementById('clearProgressOverlay').classList.add('open');
+}
+function closeClearProgress(){
+  document.getElementById('clearProgressOverlay').classList.remove('open');
+}
+function handleClearProgressOverlay(e){
+  if(e.target===document.getElementById('clearProgressOverlay')) closeClearProgress();
+}
+function confirmClearProgress(){
+  state.dayDone={};
+  state.exDone={};
+  state.warmupDone={};
+  state.cooldownDone={};
+  state.postponed={};
+  state.bonusActivated={};
+  state.tennisLog={};
+  state.postponedFrom={};
+  state.schedule=null;
+  saveState(state);
+  closeClearProgress();
+  closeSummary();
+  buildCalendar();
+  showToast('All progress cleared ✓');
+}
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeModalBtn(); closeTennisModal(); closePostponeModal(); closeClearProgress(); closeSummary(); } });
 
 // ── SUMMARY ──────────────────────────────────────────────────
 function openSummary(){
@@ -1661,7 +1869,192 @@ function renderSummary(){
         <div class="tennis-sum-label">Total logged</div>
       </div>
     </div>`:''}
+
+    <!-- EXPORT PROGRESS -->
+    <div class="sum-section" style="margin-top:24px;">Export progress</div>
+    <div class="export-row">
+      <button class="export-btn" onclick="exportProgressJSON()">
+        <span class="export-icon">📄</span>JSON
+      </button>
+      <button class="export-btn" onclick="exportProgressCSV()">
+        <span class="export-icon">📊</span>Excel (CSV)
+      </button>
+    </div>
+    <div style="font-size:11px;color:var(--mid-grey);margin-top:6px;text-align:center;line-height:1.5;">
+      Download your progress — workouts, exercise checks, postponements, and tennis log.
+    </div>
+
+    <!-- DANGER ZONE -->
+    <div class="sum-section" style="margin-top:24px;color:#c0392b;">Danger zone</div>
+    <button class="clear-progress-btn" onclick="openClearProgress()">
+      🗑️ Clear All Progress
+    </button>
+    <div style="font-size:11px;color:var(--mid-grey);margin-top:6px;text-align:center;line-height:1.5;">
+      Erases every completed day, exercise check, postponement, and tennis log.
+    </div>
   `;
+}
+
+
+// ── EXPORT PROGRESS ──────────────────────────────────────────
+function buildExportPayload(){
+  const today = dateKey(new Date());
+  const doneCount = workouts.filter((_,wi)=>!!state.dayDone[wi]).length;
+  const postponedCount = workouts.filter((_,wi)=>!!state.postponed[wi]).length;
+  const pct = Math.round((doneCount/totalProgramDays)*100);
+  const streak = computeStreak();
+  const time = computeTimeInvested();
+  const tennisPlayed = Object.values(state.tennisLog).filter(v=>v==='yes').length;
+  const tennisSkipped = Object.values(state.tennisLog).filter(v=>v==='no').length;
+
+  const days = workouts.map((w,wi)=>{
+    const dk = state.schedule[wi] || '';
+    const isDone = !!state.dayDone[wi];
+    const isPost = !!state.postponed[wi];
+    const exDone = state.exDone[wi] || {};
+    const exList = w.exercises.map(item=>({
+      key:  item.ex,
+      name: (exercises[item.ex] && exercises[item.ex].name) || item.ex,
+      reps: item.reps,
+      done: !!exDone[item.ex],
+    }));
+    const exDoneCount = exList.filter(e=>e.done).length;
+    let status;
+    if(isDone) status = 'Done';
+    else if(isPost) status = 'Postponed';
+    else if(dk && dk > today) status = 'Upcoming';
+    else status = 'Pending';
+    return {
+      day: w.day,
+      scheduledDate: dk,
+      phase: w.phase,
+      phaseName: (phases[w.phase] && phases[w.phase].name) || '',
+      focus: (w.focus||[]).join(' / '),
+      workoutMins: w.workoutMins,
+      warmupMins: warmupMins,
+      cooldownMins: cooldownMins[w.phase] || 0,
+      totalMins: getTotalMins(w),
+      status,
+      done: isDone,
+      postponed: isPost ? (state.postponed[wi] === 'end' ? 'end' : Number(state.postponed[wi]) || 1) : false,
+      warmupDone: !!state.warmupDone[wi],
+      cooldownDone: !!state.cooldownDone[wi],
+      exercisesDone: exDoneCount,
+      exercisesTotal: exList.length,
+      exercises: exList,
+    };
+  });
+
+  const tennisLog = Object.entries(state.tennisLog).map(([date,result])=>({date, result}));
+
+  return {
+    exportedAt: new Date().toISOString(),
+    program: {
+      startDate: PROGRAM_START ? dateKey(PROGRAM_START) : null,
+      totalDays: totalProgramDays,
+    },
+    summary: {
+      daysDone: doneCount,
+      daysRemaining: totalProgramDays - doneCount,
+      percentComplete: pct,
+      daysPostponed: postponedCount,
+      currentStreak: streak.current,
+      bestStreak: streak.best,
+      totalMinutesInvested: time.total,
+      tennisPlayed,
+      tennisSkipped,
+    },
+    days,
+    tennisLog,
+    bonusActivated: state.bonusActivated || {},
+  };
+}
+
+function downloadFile(content, filename, mime){
+  const blob = new Blob([content], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+
+function exportProgressJSON(){
+  const payload = buildExportPayload();
+  const json = JSON.stringify(payload, null, 2);
+  const stamp = dateKey(new Date());
+  downloadFile(json, `fitness-progress-${stamp}.json`, 'application/json');
+  showToast('✅ JSON exported');
+}
+
+function csvEscape(v){
+  if(v === null || v === undefined) return '';
+  const s = String(v);
+  if(/[",\n\r]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+  return s;
+}
+function csvRow(cells){ return cells.map(csvEscape).join(',') + '\r\n'; }
+
+function exportProgressCSV(){
+  const p = buildExportPayload();
+  let csv = '';
+  csv += csvRow(['30-Day Fitness — Progress Export']);
+  csv += csvRow(['Exported at', p.exportedAt]);
+  csv += csvRow(['Program start', p.program.startDate]);
+  csv += csvRow(['Total days', p.program.totalDays]);
+  csv += '\r\n';
+
+  csv += csvRow(['Summary']);
+  csv += csvRow(['Metric','Value']);
+  csv += csvRow(['Days done', p.summary.daysDone]);
+  csv += csvRow(['Days remaining', p.summary.daysRemaining]);
+  csv += csvRow(['Percent complete', p.summary.percentComplete + '%']);
+  csv += csvRow(['Days postponed', p.summary.daysPostponed]);
+  csv += csvRow(['Current streak', p.summary.currentStreak]);
+  csv += csvRow(['Best streak', p.summary.bestStreak]);
+  csv += csvRow(['Total minutes invested', p.summary.totalMinutesInvested]);
+  csv += csvRow(['Tennis played', p.summary.tennisPlayed]);
+  csv += csvRow(['Tennis skipped', p.summary.tennisSkipped]);
+  csv += '\r\n';
+
+  csv += csvRow(['Workout days']);
+  csv += csvRow(['Day','Scheduled date','Phase','Phase name','Focus',
+                 'Workout min','Warm-up min','Cool-down min','Total min',
+                 'Status','Done','Postponed','Warm-up done','Cool-down done',
+                 'Exercises done','Exercises total']);
+  p.days.forEach(d=>{
+    csv += csvRow([d.day, d.scheduledDate, d.phase, d.phaseName, d.focus,
+                   d.workoutMins, d.warmupMins, d.cooldownMins, d.totalMins,
+                   d.status, d.done?'Yes':'No', d.postponed?String(d.postponed):'No',
+                   d.warmupDone?'Yes':'No', d.cooldownDone?'Yes':'No',
+                   d.exercisesDone, d.exercisesTotal]);
+  });
+  csv += '\r\n';
+
+  csv += csvRow(['Per-exercise checks']);
+  csv += csvRow(['Day','Scheduled date','Exercise','Reps','Done']);
+  p.days.forEach(d=>{
+    d.exercises.forEach(ex=>{
+      csv += csvRow([d.day, d.scheduledDate, ex.name, ex.reps, ex.done?'Yes':'No']);
+    });
+  });
+  csv += '\r\n';
+
+  if(p.tennisLog.length){
+    csv += csvRow(['Tennis log']);
+    csv += csvRow(['Date','Result']);
+    p.tennisLog.forEach(t=>{
+      csv += csvRow([t.date, t.result==='yes'?'Played':t.result==='no'?'Skipped':t.result]);
+    });
+  }
+
+  const stamp = dateKey(new Date());
+  // BOM helps Excel detect UTF-8 properly
+  downloadFile('﻿' + csv, `fitness-progress-${stamp}.csv`, 'text/csv;charset=utf-8');
+  showToast('✅ CSV exported');
 }
 
 
