@@ -1,0 +1,2045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FitPlan">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2C2C2C">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>30-Day Morning Fitness</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:#FAF7F2; --warm-white:#FFF9F3;
+  --sage:#8FA688; --sage-light:#B8C9B4; --sage-dark:#5C7358;
+  --terracotta:#C4714A; --terracotta-light:#E8A882;
+  --charcoal:#2C2C2C; --mid-grey:#7A7A7A; --light-grey:#E8E4DF;
+  --gold:#C9A84C; --rest-bg:#F0EDE8; --rest-text:#A09890;
+  --week1:#EFF4EE; --week2:#EAF0F5; --week3:#F5EEF0; --week4:#F5F2E8;
+  --done-bg:#EEF7ED; --done-border:#7EC87A; --done-text:#3A7A36;
+  --postponed-bg:#FFF3E0; --postponed-border:#FFB74D;
+  --bonus-bg:#EEF3FF; --bonus-border:#7B9FE0;
+  --tennis-bg:#F0F7EE; --tennis-border:#5C9E55;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--charcoal);min-height:100vh;
+  padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);}
+
+/* HERO */
+.hero{background:var(--charcoal);padding:48px 40px 40px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 30% 50%,rgba(143,166,136,.18) 0%,transparent 60%),
+             radial-gradient(ellipse at 75% 20%,rgba(196,113,74,.12) 0%,transparent 50%);}
+.hero-tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;
+  color:var(--sage-light);background:rgba(143,166,136,.15);border:1px solid rgba(143,166,136,.3);
+  padding:6px 16px;border-radius:20px;margin-bottom:16px;position:relative;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(26px,4.5vw,52px);font-weight:900;
+  color:var(--warm-white);line-height:1.1;position:relative;}
+.hero h1 span{color:var(--terracotta-light);}
+.hero-sub{margin-top:12px;font-size:13px;color:var(--sage-light);letter-spacing:.5px;position:relative;}
+.focus-badges{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:20px;position:relative;}
+.badge{font-size:11px;font-weight:500;padding:5px 13px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.75);background:rgba(255,255,255,.07);}
+.badge.highlight{background:rgba(196,113,74,.2);border-color:rgba(196,113,74,.4);color:var(--terracotta-light);}
+
+/* PROGRESS */
+.progress-banner{background:var(--charcoal);border-top:1px solid rgba(255,255,255,.08);
+  padding:12px 40px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.prog-label{font-size:11px;font-weight:600;color:var(--sage-light);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+.prog-track{flex:1;min-width:120px;height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--sage),var(--terracotta-light));border-radius:4px;transition:width .5s ease;}
+.prog-pct{font-size:13px;font-weight:700;color:var(--warm-white);}
+.prog-stats{font-size:11px;color:var(--sage-light);}
+
+/* LEGEND */
+.legend-bar{background:var(--warm-white);border-bottom:1px solid var(--light-grey);padding:12px 40px;
+  display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:center;font-size:11px;font-weight:500;}
+.legend-item{display:flex;align-items:center;gap:6px;}
+.legend-dot{width:9px;height:9px;border-radius:50%;}
+.dot-w1{background:var(--sage);}.dot-w2{background:#5B8DA6;}.dot-w3{background:#A66080;}
+.dot-w4{background:var(--gold);}.dot-rest{background:var(--rest-text);}
+.dot-done{background:var(--done-border);}.dot-post{background:var(--postponed-border);}
+
+/* PHASE STRIP */
+.phase-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--light-grey);border-bottom:1px solid var(--light-grey);}
+.phase-block{padding:11px 14px;text-align:center;}
+.phase-block:nth-child(1){background:var(--week1);}.phase-block:nth-child(2){background:var(--week2);}
+.phase-block:nth-child(3){background:var(--week3);}.phase-block:nth-child(4){background:var(--week4);}
+.phase-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;opacity:.7;}
+.phase-desc{font-size:11px;margin-top:2px;opacity:.8;}
+.phase-time{font-size:11px;font-weight:600;margin-top:3px;color:var(--terracotta);}
+
+/* CALENDAR */
+.calendar-container{padding:24px 40px 80px;max-width:1400px;margin:0 auto;}
+.week-label{font-family:'Playfair Display',serif;font-size:12px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;color:var(--mid-grey);margin:22px 0 10px;display:flex;align-items:center;gap:12px;}
+.week-label::after{content:'';flex:1;height:1px;background:var(--light-grey);}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:4px;}
+.day-header{text-align:center;font-size:10px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--mid-grey);padding-bottom:5px;}
+.day-header.rest-day{color:var(--rest-text);}
+
+/* DAY CARDS */
+.day-card{background:white;border-radius:12px;padding:11px 10px;cursor:pointer;
+  transition:transform .18s,box-shadow .18s;border:1.5px solid transparent;
+  position:relative;min-height:145px;}
+.day-card:not(.rest):not(.empty-card):hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1);}
+.day-card.phase-1{border-left:3px solid var(--sage);}
+.day-card.phase-2{border-left:3px solid #5B8DA6;}
+.day-card.phase-3{border-left:3px solid #A66080;}
+.day-card.phase-4{border-left:3px solid var(--gold);}
+.day-card.rest{background:var(--rest-bg);cursor:pointer;border-left:none;opacity:.85;}
+.day-card.bonus{background:var(--bonus-bg);border-left:3px solid var(--bonus-border);cursor:pointer;opacity:1;}
+.day-card.done-card{background:var(--done-bg);border-left-color:var(--done-border)!important;}
+.day-card.done-card .workout-day-num{color:var(--done-text)!important;}
+.day-card.postponed-card{background:var(--postponed-bg);border-left-color:var(--postponed-border)!important;opacity:.85;}
+.day-card.empty-card{opacity:.15;cursor:default;pointer-events:none;}
+
+.day-num{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--mid-grey);margin-bottom:3px;}
+.day-card.rest .day-num{color:var(--rest-text);}
+.workout-day-num{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;line-height:1;margin-bottom:4px;}
+.phase-1 .workout-day-num{color:var(--sage-dark);}.phase-2 .workout-day-num{color:#3A6D8C;}
+.phase-3 .workout-day-num{color:#804060;}.phase-4 .workout-day-num{color:#9A7C28;}
+
+/* TIME BREAKDOWN PILL ON CARD */
+.time-breakdown{display:flex;gap:3px;margin-bottom:6px;flex-wrap:wrap;}
+.tb-seg{font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;white-space:nowrap;}
+.tb-warmup{background:rgba(143,166,136,.18);color:var(--sage-dark);}
+.tb-workout{background:rgba(196,113,74,.13);color:#8B4020;}
+.tb-cooldown{background:rgba(91,141,166,.15);color:#2A5A78;}
+.card-total-time{font-size:15px;font-weight:800;color:var(--charcoal);margin-bottom:2px;line-height:1;
+  font-family:'Playfair Display',serif;letter-spacing:-.3px;}
+.card-total-time-sub{font-size:9px;color:var(--mid-grey);}
+
+.rest-icon{font-size:22px;margin:5px 0 3px;}
+.rest-label{font-size:11px;font-weight:600;color:var(--rest-text);letter-spacing:1px;text-transform:uppercase;}
+.rest-sub{font-size:10px;color:var(--rest-text);margin-top:2px;}
+
+.exercise-list{list-style:none;}
+.exercise-list li{font-size:10.5px;color:var(--charcoal);padding:1.5px 0;
+  display:flex;align-items:flex-start;gap:4px;line-height:1.4;}
+.exercise-list li::before{content:'·';flex-shrink:0;color:var(--terracotta);font-size:13px;line-height:1.2;}
+.exercise-list li.done-ex{text-decoration:line-through;color:var(--mid-grey);opacity:.6;}
+.exercise-list li.done-ex::before{color:var(--done-border);}
+
+/* CARD STATUS & ACTIONS */
+.card-status{position:absolute;top:9px;right:9px;font-size:9px;font-weight:700;
+  padding:2px 7px;border-radius:7px;letter-spacing:.5px;text-transform:uppercase;}
+.status-done{background:var(--done-border);color:white;}
+.status-postponed{background:var(--postponed-border);color:white;}
+.status-bonus{background:var(--bonus-border);color:white;}
+.card-actions{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;}
+.card-btn{font-size:10px;font-weight:600;padding:3px 8px;border-radius:7px;border:none;
+  cursor:pointer;transition:all .15s;flex-shrink:0;font-family:'DM Sans',sans-serif;}
+.btn-complete{background:rgba(126,200,122,.15);color:var(--done-text);border:1px solid rgba(126,200,122,.4);}
+.btn-complete:hover,.btn-complete.active{background:var(--done-border);color:white;}
+.btn-postpone{background:rgba(255,183,77,.12);color:#9A6800;border:1px solid rgba(255,183,77,.4);}
+.btn-postpone:hover,.btn-postpone.postponed{background:var(--postponed-border);color:white;}
+.bonus-add-btn{width:100%;margin-top:7px;font-size:11px;font-weight:600;padding:5px;
+  border-radius:8px;border:1px dashed var(--bonus-border);background:transparent;
+  color:#3A5AA0;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.bonus-add-btn:hover{background:var(--bonus-bg);border-style:solid;}
+
+/* TENNIS CARD */
+.tennis-question{margin-top:8px;}
+.tennis-q-label{font-size:10px;font-weight:700;color:var(--mid-grey);margin-bottom:5px;letter-spacing:.5px;}
+.tennis-btns{display:flex;gap:5px;}
+.tennis-btn{flex:1;font-size:10px;font-weight:700;padding:5px 4px;border-radius:8px;border:none;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;letter-spacing:.3px;}
+.tennis-yes{background:rgba(92,158,85,.15);color:var(--tennis-border);border:1px solid rgba(92,158,85,.35);}
+.tennis-yes.selected,.tennis-yes:hover{background:var(--tennis-border);color:white;}
+.tennis-no{background:rgba(196,113,74,.12);color:var(--terracotta);border:1px solid rgba(196,113,74,.3);}
+.tennis-no.selected,.tennis-no:hover{background:var(--terracotta);color:white;}
+.tennis-logged{font-size:10px;font-weight:600;padding:4px 8px;border-radius:8px;margin-top:5px;text-align:center;}
+.tennis-played{background:rgba(92,158,85,.15);color:var(--tennis-border);}
+.tennis-skipped{background:rgba(196,113,74,.12);color:var(--terracotta);}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(30,28,26,.75);z-index:1000;
+  align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--warm-white);border-radius:20px;max-width:700px;width:100%;
+  max-height:90vh;overflow-y:auto;position:relative;animation:modalIn .28s ease;}
+@keyframes modalIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+
+.modal-header{padding:22px 26px 16px;border-bottom:1px solid var(--light-grey);
+  position:sticky;top:0;background:var(--warm-white);z-index:1;border-radius:20px 20px 0 0;}
+.modal-phase-tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.modal-title{font-family:'Playfair Display',serif;font-size:23px;font-weight:900;}
+.modal-meta{display:flex;gap:12px;margin-top:6px;flex-wrap:wrap;}
+.modal-meta span{font-size:11px;font-weight:600;color:var(--mid-grey);}
+.modal-close{position:absolute;top:16px;right:20px;background:var(--light-grey);border:none;
+  width:30px;height:30px;border-radius:50%;font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:background .2s;}
+.modal-close:hover{background:var(--charcoal);color:white;}
+
+/* TIME BREAKDOWN IN MODAL HEADER */
+.modal-time-breakdown{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap;align-items:center;}
+.mtb-seg{font-size:11px;font-weight:600;padding:3px 10px;border-radius:8px;}
+.mtb-warmup{background:rgba(143,166,136,.18);color:var(--sage-dark);}
+.mtb-workout{background:rgba(196,113,74,.13);color:#8B4020;}
+.mtb-cooldown{background:rgba(91,141,166,.15);color:#2A5A78;}
+.mtb-arrow{color:var(--mid-grey);font-size:11px;}
+.mtb-total{font-size:11px;font-weight:700;color:var(--charcoal);background:rgba(0,0,0,.07);padding:3px 10px;border-radius:8px;}
+
+/* DAY-LEVEL COMPLETE */
+.modal-day-complete{display:flex;align-items:center;gap:10px;margin-top:10px;
+  padding:10px 13px;border-radius:10px;background:var(--done-bg);
+  border:1px solid rgba(126,200,122,.3);cursor:pointer;transition:all .2s;user-select:none;}
+.modal-day-complete:hover{border-color:var(--done-border);}
+.modal-day-complete.active{background:#d4f0d2;border-color:var(--done-border);}
+.modal-day-complete input[type=checkbox]{width:15px;height:15px;accent-color:var(--done-border);cursor:pointer;}
+.modal-day-complete-label{font-size:12px;font-weight:600;color:var(--done-text);}
+
+.modal-body{padding:18px 26px 28px;}
+.section-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--mid-grey);margin-bottom:10px;margin-top:18px;}
+.section-title:first-child{margin-top:0;}
+
+/* APPLE WATCH BLOCK */
+.watch-block{background:#1C1C1E;border-radius:12px;padding:14px 16px;margin-bottom:4px;
+  border:1px solid #3A3A3C;display:flex;gap:12px;align-items:flex-start;}
+.watch-icon{font-size:28px;flex-shrink:0;line-height:1;}
+.watch-info{flex:1;}
+.watch-type{font-size:13px;font-weight:700;color:white;margin-bottom:3px;}
+.watch-steps{font-size:11px;color:#8E8E93;line-height:1.6;}
+.watch-steps strong{color:#E8A882;}
+.watch-tip{font-size:10px;color:#636366;margin-top:6px;font-style:italic;}
+
+/* WARMUP / EXERCISE / COOLDOWN BLOCKS */
+.ex-block{background:white;border-radius:12px;padding:13px 15px;margin-bottom:7px;
+  border:1px solid var(--light-grey);transition:border-color .2s;}
+.ex-block:hover{border-color:var(--sage);}
+.ex-block.ex-done{background:#f5fbf5;border-color:rgba(126,200,122,.4);}
+.ex-block.ex-done .ex-name{text-decoration:line-through;color:var(--mid-grey);}
+.ex-row{display:flex;align-items:flex-start;gap:10px;}
+.ex-check{margin-top:2px;width:15px;height:15px;accent-color:var(--done-border);cursor:pointer;flex-shrink:0;}
+.ex-info{flex:1;}
+.ex-name{font-weight:700;font-size:13px;margin-bottom:1px;}
+.ex-target{font-size:11px;color:var(--mid-grey);}
+.ex-reps{font-size:11px;font-weight:700;color:var(--terracotta);white-space:nowrap;flex-shrink:0;
+  background:rgba(196,113,74,.1);padding:3px 9px;border-radius:7px;}
+.ex-tip{font-size:11px;color:var(--mid-grey);margin-top:5px;font-style:italic;line-height:1.5;}
+.ex-link{display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11px;
+  font-weight:600;color:var(--sage-dark);text-decoration:none;border-bottom:1px solid var(--sage-light);}
+.ex-link:hover{color:var(--terracotta);}
+
+/* TENNIS MODAL */
+.tennis-modal-card{background:var(--warm-white);border-radius:20px;max-width:560px;width:100%;
+  max-height:90vh;overflow-y:auto;position:relative;animation:modalIn .28s ease;}
+.tennis-header{padding:22px 26px 16px;border-bottom:1px solid var(--light-grey);
+  position:sticky;top:0;background:var(--warm-white);z-index:1;border-radius:20px 20px 0 0;}
+.tennis-header-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;}
+.tennis-header-sub{font-size:12px;color:var(--mid-grey);margin-top:4px;}
+.tennis-played-question{display:flex;gap:10px;margin:16px 0;}
+.tpq-btn{flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--light-grey);
+  background:white;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;text-align:center;}
+.tpq-btn:hover{border-color:var(--terracotta);}
+.tpq-btn.selected-yes{background:var(--tennis-bg);border-color:var(--tennis-border);}
+.tpq-btn.selected-no{background:rgba(196,113,74,.08);border-color:var(--terracotta);}
+.tpq-icon{font-size:22px;margin-bottom:4px;}
+.tpq-label{font-size:13px;font-weight:700;}
+.tpq-sub{font-size:11px;color:var(--mid-grey);margin-top:2px;}
+
+/* POSTPONE MODAL */
+.postpone-modal{background:var(--warm-white);border-radius:16px;max-width:400px;width:100%;
+  padding:26px;animation:modalIn .25s ease;}
+.postpone-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:5px;}
+.postpone-sub{font-size:12px;color:var(--mid-grey);margin-bottom:18px;line-height:1.5;}
+.postpone-btns{display:flex;flex-direction:column;gap:9px;}
+.postpone-opt{padding:11px 15px;border-radius:10px;border:1.5px solid var(--light-grey);
+  background:white;cursor:pointer;text-align:left;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.postpone-opt:hover{border-color:var(--terracotta);background:rgba(196,113,74,.04);}
+.postpone-opt strong{display:block;font-size:13px;font-weight:700;margin-bottom:2px;}
+.postpone-opt span{font-size:11px;color:var(--mid-grey);}
+.postpone-cancel{margin-top:8px;padding:10px;border:none;background:transparent;
+  color:var(--mid-grey);font-size:13px;cursor:pointer;border-radius:8px;width:100%;
+  font-family:'DM Sans',sans-serif;transition:background .2s;}
+.postpone-cancel:hover{background:var(--light-grey);}
+
+.focus-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.focus-tag{font-size:11px;font-weight:600;padding:3px 11px;border-radius:20px;
+  background:rgba(143,166,136,.15);color:var(--sage-dark);border:1px solid rgba(143,166,136,.3);}
+
+
+/* SUMMARY TRIGGER */
+.summary-trigger{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  color:white;font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;
+  cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.summary-trigger:hover{background:rgba(255,255,255,.18);}
+
+/* SUMMARY MODAL */
+.summary-modal{background:var(--cream);border-radius:24px;max-width:680px;width:100%;
+  max-height:92vh;overflow-y:auto;position:relative;animation:modalIn .3s ease;}
+.summary-header{background:var(--charcoal);padding:24px 26px 20px;border-radius:24px 24px 0 0;
+  position:sticky;top:0;z-index:2;}
+.summary-header-tag{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:var(--sage-light);margin-bottom:6px;}
+.summary-header-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:white;}
+.summary-body{padding:20px 22px 32px;}
+
+/* STAT CARDS ROW */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.stat-card{background:white;border-radius:14px;padding:14px 12px;text-align:center;
+  border:1px solid var(--light-grey);}
+.stat-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;line-height:1;margin-bottom:4px;}
+.stat-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--mid-grey);}
+.stat-sub{font-size:10px;color:var(--mid-grey);margin-top:2px;}
+
+/* SECTION HEADERS */
+.sum-section{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--mid-grey);margin:20px 0 10px;display:flex;align-items:center;gap:10px;}
+.sum-section::after{content:'';flex:1;height:1px;background:var(--light-grey);}
+
+/* 30-DOT TIMELINE */
+.timeline-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-bottom:6px;}
+.tl-dot{width:100%;aspect-ratio:1;border-radius:50%;position:relative;cursor:default;
+  display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;
+  transition:transform .15s;}
+.tl-dot:hover{transform:scale(1.2);}
+.tl-done{background:var(--done-border);}
+.tl-phase-1{background:var(--sage);}
+.tl-phase-2{background:#5B8DA6;}
+.tl-phase-3{background:#A66080;}
+.tl-phase-4{background:var(--gold);}
+.tl-upcoming{background:var(--light-grey);}
+.tl-postponed{background:var(--postponed-border);}
+.tl-label-row{display:flex;justify-content:space-between;font-size:9px;color:var(--mid-grey);
+  font-weight:600;margin-bottom:14px;padding:0 2px;}
+
+/* PHASE PROGRESS BARS */
+.phase-bars{display:flex;flex-direction:column;gap:8px;margin-bottom:4px;}
+.phase-bar-row{display:flex;align-items:center;gap:10px;}
+.phase-bar-name{font-size:11px;font-weight:600;width:80px;flex-shrink:0;}
+.phase-bar-track{flex:1;height:10px;background:var(--light-grey);border-radius:5px;overflow:hidden;}
+.phase-bar-fill{height:100%;border-radius:5px;transition:width .6s ease;}
+.phase-bar-count{font-size:11px;font-weight:700;width:40px;text-align:right;flex-shrink:0;}
+
+/* FOCUS AREA HEATMAP */
+.focus-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:4px;}
+.focus-cell{background:white;border-radius:12px;padding:12px 14px;border:1px solid var(--light-grey);}
+.focus-cell-name{font-size:12px;font-weight:700;margin-bottom:6px;}
+.focus-cell-bar{height:7px;border-radius:4px;background:var(--light-grey);overflow:hidden;margin-bottom:4px;}
+.focus-cell-fill{height:100%;border-radius:4px;}
+.focus-cell-stats{font-size:10px;color:var(--mid-grey);}
+
+/* TIME INVESTED */
+.time-invested-block{background:var(--charcoal);border-radius:14px;padding:16px 18px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center;}
+.ti-num{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:white;line-height:1;margin-bottom:3px;}
+.ti-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--sage-light);}
+
+/* STREAK BLOCK */
+.streak-block{background:linear-gradient(135deg,var(--terracotta),var(--terracotta-light));
+  border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:16px;margin-bottom:4px;}
+.streak-fire{font-size:36px;flex-shrink:0;}
+.streak-info{flex:1;}
+.streak-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:white;line-height:1;}
+.streak-label{font-size:12px;font-weight:600;color:rgba(255,255,255,.85);margin-top:2px;}
+.streak-best{font-size:11px;color:rgba(255,255,255,.65);margin-top:4px;}
+
+/* TENNIS LOG SUMMARY */
+.tennis-sum-row{display:flex;gap:10px;}
+.tennis-sum-cell{flex:1;background:white;border-radius:12px;padding:12px;text-align:center;border:1px solid var(--light-grey);}
+.tennis-sum-num{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;line-height:1;margin-bottom:3px;}
+.tennis-sum-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--mid-grey);}
+
+/* MOTIVATIONAL BADGE */
+.motive-badge{background:var(--week1);border:1px solid rgba(143,166,136,.3);border-radius:14px;
+  padding:14px 18px;display:flex;align-items:center;gap:12px;margin-top:4px;}
+.motive-icon{font-size:28px;flex-shrink:0;}
+.motive-text{flex:1;}
+.motive-title{font-size:13px;font-weight:700;color:var(--sage-dark);margin-bottom:2px;}
+.motive-sub{font-size:11px;color:var(--mid-grey);line-height:1.5;}
+
+/* SESSION DURATION BAR CHART */
+.chart-wrap{background:white;border-radius:14px;padding:16px 14px 10px;border:1px solid var(--light-grey);margin-bottom:4px;}
+.chart-bars{display:flex;align-items:flex-end;gap:3px;height:80px;margin-bottom:4px;}
+.chart-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.chart-bar{width:100%;border-radius:3px 3px 0 0;transition:height .4s ease;min-height:2px;position:relative;cursor:default;}
+.chart-bar.done-bar{opacity:1;}
+.chart-bar.undone-bar{opacity:.28;}
+.chart-bar:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 4px);left:50%;
+  transform:translateX(-50%);background:var(--charcoal);color:white;font-size:9px;font-weight:600;
+  padding:3px 7px;border-radius:5px;white-space:nowrap;z-index:10;pointer-events:none;}
+.chart-day-label{font-size:8px;color:var(--mid-grey);font-weight:600;}
+.chart-axis{display:flex;justify-content:space-between;font-size:9px;color:var(--mid-grey);
+  padding-top:4px;border-top:1px solid var(--light-grey);margin-top:2px;}
+.chart-legend{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;}
+.chart-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:500;color:var(--mid-grey);}
+.chart-legend-dot{width:8px;height:8px;border-radius:2px;}
+
+/* WEEKLY HEATMAP */
+.heatmap-wrap{background:white;border-radius:14px;padding:14px;border:1px solid var(--light-grey);margin-bottom:4px;}
+.heatmap-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.hm-header{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--mid-grey);text-align:center;padding-bottom:4px;}
+.hm-cell{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;cursor:default;transition:transform .15s;position:relative;}
+.hm-cell:hover{transform:scale(1.15);}
+.hm-cell:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 5px);left:50%;
+  transform:translateX(-50%);background:var(--charcoal);color:white;font-size:9px;padding:3px 7px;
+  border-radius:5px;white-space:nowrap;z-index:10;pointer-events:none;}
+.hm-done{background:var(--done-border);color:white;}
+.hm-tennis{background:var(--tennis-border);color:white;}
+.hm-postponed{background:var(--postponed-border);color:white;}
+.hm-pending{background:var(--light-grey);color:var(--mid-grey);}
+.hm-rest{background:rgba(0,0,0,.04);color:var(--rest-text);}
+.hm-empty{background:transparent;}
+.hmap-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+.hmap-li{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--mid-grey);}
+.hmap-sq{width:9px;height:9px;border-radius:2px;}
+
+/* EXERCISE COMPLETION */
+.ex-comp-list{display:flex;flex-direction:column;gap:6px;margin-bottom:4px;}
+.ex-comp-row{display:flex;align-items:center;gap:8px;}
+.ex-comp-name{font-size:11px;font-weight:600;width:150px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ex-comp-track{flex:1;height:8px;background:var(--light-grey);border-radius:4px;overflow:hidden;}
+.ex-comp-fill{height:100%;border-radius:4px;background:var(--terracotta);transition:width .5s ease;}
+.ex-comp-count{font-size:10px;font-weight:700;color:var(--mid-grey);width:36px;text-align:right;flex-shrink:0;}
+
+@media(max-width:580px){
+  .stat-row{grid-template-columns:repeat(2,1fr);}
+  .summary-header,.summary-body{padding-left:16px;padding-right:16px;}
+  .time-invested-block{grid-template-columns:repeat(3,1fr);gap:8px;}
+  .ti-num{font-size:20px;}
+  .ex-comp-name{width:110px;}
+}
+
+/* NOTIFICATION PANEL */
+.notif-panel{background:var(--charcoal);padding:14px 40px;display:flex;align-items:center;
+  gap:14px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.07);}
+.notif-panel-text{flex:1;min-width:180px;}
+.notif-panel-title{font-size:12px;font-weight:700;color:white;margin-bottom:2px;}
+.notif-panel-sub{font-size:11px;color:rgba(255,255,255,.5);}
+.notif-btn{font-size:11px;font-weight:700;padding:7px 14px;border-radius:20px;border:none;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap;}
+.notif-btn-android{background:var(--sage);color:white;}
+.notif-btn-android:hover{background:var(--sage-dark);}
+.notif-btn-android.active{background:var(--done-border);}
+.notif-btn-ios{background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.25);}
+.notif-btn-ios:hover{background:rgba(255,255,255,.18);}
+.notif-status{font-size:11px;font-weight:600;padding:5px 12px;border-radius:12px;}
+.notif-on{background:rgba(126,200,122,.2);color:var(--done-border);}
+.notif-off{background:rgba(255,255,255,.07);color:rgba(255,255,255,.45);}
+
+/* INSTALL BANNER */
+.install-banner{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:var(--charcoal);color:white;padding:12px 18px 12px 14px;border-radius:14px;
+  font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.35);z-index:9998;
+  gap:12px;align-items:center;max-width:340px;width:calc(100vw - 40px);
+  border:1px solid rgba(255,255,255,.1);animation:slideUp .35s ease;}
+.install-banner.visible{display:flex;}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+.install-banner-text{flex:1;line-height:1.4;}
+.install-banner-text strong{display:block;font-size:14px;font-weight:700;margin-bottom:2px;}
+.install-banner-text span{font-size:11px;color:rgba(255,255,255,.6);}
+.install-btn{background:var(--terracotta);color:white;border:none;padding:8px 13px;
+  border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.install-dismiss{background:transparent;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;padding:0 0 0 6px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--charcoal);color:white;font-size:13px;font-weight:500;padding:10px 20px;
+  border-radius:24px;z-index:9999;transition:transform .3s ease;pointer-events:none;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--light-grey);border-radius:3px;}
+
+@media(max-width:900px){
+  .week-grid{grid-template-columns:repeat(4,1fr);}
+  .phase-strip{grid-template-columns:repeat(2,1fr);}
+  .calendar-container{padding:14px 10px 80px;}
+  .hero,.progress-banner,.legend-bar{padding-left:16px;padding-right:16px;}
+}
+@media(max-width:580px){
+  .week-grid{grid-template-columns:repeat(3,1fr);}
+  .modal,.tennis-modal-card{border-radius:14px;}
+  .modal-header,.modal-body,.tennis-header{padding-left:16px;padding-right:16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="install-banner" id="installBanner">
+  <div class="install-banner-text">
+    <strong>📲 Add to Home Screen</strong>
+    <span>Install for offline access &amp; native feel</span>
+  </div>
+  <button class="install-btn" id="installBtn">Install</button>
+  <button class="install-dismiss" onclick="dismissInstall()">×</button>
+</div>
+
+<div class="hero">
+  <div class="hero-tag">30-Day Program · June 2026</div>
+  <h1>Your <span>Morning</span> Fitness Plan</h1>
+  <p class="hero-sub">Progressive · Home-Based · 10–28 min · Rest on Tennis Days</p>
+  <div class="focus-badges">
+    <span class="badge highlight">🔥 Core & Tummy</span>
+    <span class="badge highlight">🧍 Pelvic Tilt Fix</span>
+    <span class="badge highlight">💪 Arm Toning</span>
+    <span class="badge highlight">🦵 Inner Thighs</span>
+    <span class="badge">1kg Dumbbells</span>
+    <span class="badge">Yoga Mat</span>
+  </div>
+</div>
+
+<div class="progress-banner">
+  <span class="prog-label">Progress</span>
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <span class="prog-pct" id="progPct">0%</span>
+  <span class="prog-stats" id="progStats">0 / 30 days done</span>
+  <button class="summary-trigger" onclick="openSummary()">📊 Summary</button>
+</div>
+
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-panel-text">
+    <div class="notif-panel-title">🔔 Evening Reminders · 8:00 PM</div>
+    <div class="notif-panel-sub" id="notifPanelSub">Get tomorrow's workout preview every evening</div>
+  </div>
+  <span class="notif-status notif-off" id="notifStatus">Off</span>
+  <button class="notif-btn notif-btn-android" id="notifBtnAndroid" onclick="requestAndroidNotif()" style="display:none">Enable Notifications</button>
+  <button class="notif-btn notif-btn-ios" id="notifBtnIos" onclick="downloadIcs()" style="display:none">📅 Add to Calendar</button>
+</div>
+
+<div class="legend-bar">
+  <span style="font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--mid-grey)">Legend:</span>
+  <span class="legend-item"><span class="legend-dot dot-w1"></span>Phase 1 (10–12m)</span>
+  <span class="legend-item"><span class="legend-dot dot-w2"></span>Phase 2 (15–18m)</span>
+  <span class="legend-item"><span class="legend-dot dot-w3"></span>Phase 3 (20–25m)</span>
+  <span class="legend-item"><span class="legend-dot dot-w4"></span>Phase 4 (26–30m)</span>
+  <span class="legend-item"><span class="legend-dot dot-rest"></span>Tennis/Rest</span>
+  <span class="legend-item"><span class="legend-dot dot-done"></span>Done</span>
+  <span class="legend-item"><span class="legend-dot dot-post"></span>Postponed</span>
+</div>
+
+<div class="phase-strip">
+  <div class="phase-block"><div class="phase-name">Phase 1</div><div class="phase-desc">Foundation</div><div class="phase-time">10–12 min</div></div>
+  <div class="phase-block"><div class="phase-name">Phase 2</div><div class="phase-desc">Build</div><div class="phase-time">15–18 min</div></div>
+  <div class="phase-block"><div class="phase-name">Phase 3</div><div class="phase-desc">Strength</div><div class="phase-time">20–25 min</div></div>
+  <div class="phase-block"><div class="phase-name">Phase 4</div><div class="phase-desc">Peak</div><div class="phase-time">26–30 min</div></div>
+</div>
+
+<div class="calendar-container" id="calendarRoot"></div>
+
+
+<!-- SUMMARY MODAL -->
+<div class="modal-overlay" id="summaryOverlay" onclick="handleSummaryOverlay(event)">
+  <div class="summary-modal" id="summaryModal">
+    <div class="summary-header">
+      <button class="modal-close" onclick="closeSummary()">✕</button>
+      <div class="summary-header-tag">Your Journey</div>
+      <div class="summary-header-title">Progress Overview</div>
+    </div>
+    <div class="summary-body" id="summaryBody"></div>
+  </div>
+</div>
+
+<!-- WORKOUT MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modalContent"></div>
+</div>
+<!-- TENNIS MODAL -->
+<div class="modal-overlay" id="tennisOverlay" onclick="handleTennisOverlay(event)">
+  <div class="tennis-modal-card" id="tennisContent"></div>
+</div>
+<!-- POSTPONE MODAL -->
+<div class="modal-overlay" id="postponeOverlay" onclick="handlePostponeOverlay(event)">
+  <div class="postpone-modal" id="postponeContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STORAGE ────────────────────────────────────────────────
+const STORE_KEY = 'fitness30_v3';
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ return {}; } }
+function saveState(s){ try{ localStorage.setItem(STORE_KEY,JSON.stringify(s)); }catch(e){} }
+
+let state = loadState();
+['dayDone','exDone','warmupDone','cooldownDone','postponed','bonusActivated','tennisLog'].forEach(k=>{
+  if(!state[k]) state[k]={};
+});
+if(!state.schedule||state.schedule.length!==30) state.schedule=null;
+
+// ── EXERCISE DATA ──────────────────────────────────────────
+const warmupExercises = [
+  {key:'catcow', name:'Cat-Cow Stretch', detail:'6 slow reps', link:'https://www.youtube.com/watch?v=kqnua4rHVVA'},
+  {key:'hipcirc', name:'Hip Circles', detail:'8 each side', link:'https://www.youtube.com/watch?v=VH7d6CkEBY4'},
+  {key:'armcirc', name:'Arm Circles', detail:'10 forward + 10 back', link:'https://www.youtube.com/watch?v=X1sYqAC9nHM'}
+];
+
+// Cooldown sets per phase with videos
+const cooldownSets = {
+  p1:[
+    {key:'childpose', name:"Child's Pose", detail:'Hold 30s', link:'https://www.youtube.com/watch?v=2MJGg-dUKh0'},
+    {key:'hipflexor', name:'Lying Hip Flexor Stretch', detail:'30s each side', link:'https://www.youtube.com/watch?v=YQmpTOQgZqI'},
+    {key:'chestopen', name:'Chest Opener Stretch', detail:'Hold 30s', link:'https://www.youtube.com/watch?v=cBe1xt-6QBE'}
+  ],
+  p2:[
+    {key:'pigeon', name:'Pigeon Pose', detail:'40s each side', link:'https://www.youtube.com/watch?v=24nKXO4VNYQ'},
+    {key:'tricepstr', name:'Overhead Tricep Stretch', detail:'30s each arm', link:'https://www.youtube.com/watch?v=GKDVF2g3aZA'},
+    {key:'cobra', name:'Cobra Stretch', detail:'Hold 30s', link:'https://www.youtube.com/watch?v=JDl_q5m19jA'}
+  ],
+  p3:[
+    {key:'figure4', name:'Figure-4 Hip Stretch', detail:'40s each side', link:'https://www.youtube.com/watch?v=nzLkv9AAaKc'},
+    {key:'tricepstr2', name:'Overhead Tricep Stretch', detail:'30s each arm', link:'https://www.youtube.com/watch?v=GKDVF2g3aZA'},
+    {key:'catcow2', name:'Cat-Cow Flow', detail:'6 slow reps', link:'https://www.youtube.com/watch?v=kqnua4rHVVA'}
+  ],
+  p4:[
+    {key:'pigeon2', name:'Pigeon Pose', detail:'45s each side', link:'https://www.youtube.com/watch?v=24nKXO4VNYQ'},
+    {key:'fwdfold', name:'Seated Forward Fold', detail:'Hold 45s', link:'https://www.youtube.com/watch?v=Fh-smPKLfb0'},
+    {key:'doorway', name:'Doorway Chest Stretch', detail:'Hold 30s', link:'https://www.youtube.com/watch?v=WMb-jbYnI3Q'},
+    {key:'spinaltwist', name:'Supine Spinal Twist', detail:'30s each side', link:'https://www.youtube.com/watch?v=XrEiPJKLPsc'}
+  ]
+};
+const cooldownKeyMap = {1:'p1',2:'p2',3:'p3',4:'p4'};
+
+// Apple Watch guidance per phase
+const watchGuide = {
+  1:{ type:'Functional Strength Training', steps:'On Apple Watch → Workout app → scroll to "Functional Strength Training" → tap Start', tip:'Phase 1 uses bodyweight & low-load moves. Functional Strength gives the most accurate calorie burn for this type.'},
+  2:{ type:'Functional Strength Training', steps:'Apple Watch → Workout → "Functional Strength Training". As intensity builds, your HR zone will push into Zone 2–3.', tip:'If HR stays in Zone 3+ for most of the session, you can also log as "Core Training" for variety.'},
+  3:{ type:'Core Training', steps:'Apple Watch → Workout → scroll to "Core Training" → Start. Alternatively use "Functional Strength Training".', tip:'Phase 3 has sustained plank holds & HIIT-style moves. Core Training or Functional Strength both work — Core Training tracks HR more aggressively.'},
+  4:{ type:'Core Training', steps:'Apple Watch → Workout → "Core Training" → Start. At peak intensity you may prefer "HIIT" if HR stays above 75% max.', tip:'Peak days push into Zone 3–4. If a session feels like a full circuit, select HIIT for better calorie tracking.'}
+};
+
+const exercises = {
+  deadBug:{name:"Dead Bug",target:"Deep core, APT correction",tip:"Press lower back into mat the entire time. Move slowly.",link:"https://www.youtube.com/watch?v=g_BYB0R-4Ws"},
+  pelvicTilt:{name:"Supine Pelvic Tilt",target:"Lower abs, APT correction",tip:"Flatten lower back to mat by squeezing glutes and drawing navel in.",link:"https://www.youtube.com/watch?v=BxtzqQilHDM"},
+  gluteBridge:{name:"Glute Bridge",target:"Glutes, hamstrings, APT",tip:"Squeeze glutes at the top. Don't hyperextend lower back.",link:"https://www.youtube.com/watch?v=OUgsJ8-Vi0E"},
+  birdDog:{name:"Bird Dog",target:"Core stability, lower back, APT",tip:"Keep hips level — don't rotate as you extend opposite arm/leg.",link:"https://www.youtube.com/watch?v=wiFNA3sqjCA"},
+  hollowBodyHold:{name:"Hollow Body Hold",target:"Deep core, abs, APT",tip:"Lower back stays on mat. Lower legs only as far as you can without arching.",link:"https://www.youtube.com/watch?v=LlDNef_Ztsc"},
+  modifiedPlank:{name:"Modified Plank (Knees)",target:"Core, shoulders, APT",tip:"Straight line from knees to head. Engage abs — don't sag.",link:"https://www.youtube.com/watch?v=IODxDxX7oi4"},
+  fullPlank:{name:"Full Plank Hold",target:"Full core, APT stabilization",tip:"Tuck pelvis slightly and pull navel to spine.",link:"https://www.youtube.com/watch?v=pSHjTRCQxIw"},
+  reverseCrunch:{name:"Reverse Crunch",target:"Lower abs, APT correction",tip:"Curl hips up using lower abs — no momentum.",link:"https://www.youtube.com/watch?v=Wf7uVBsZ8go"},
+  legRaiseBent:{name:"Bent Knee Leg Raise",target:"Lower abs, hip flexors",tip:"Keep lower back pressed to mat. Raise and lower with control.",link:"https://www.youtube.com/watch?v=l4kQd9eWclE"},
+  mountainClimber:{name:"Slow Mountain Climbers",target:"Core, cardio, total body",tip:"Slow and deliberate — feel core engage with each knee drive.",link:"https://www.youtube.com/watch?v=nmwgirgXLYM"},
+  sidePlank:{name:"Side Plank (Modified)",target:"Obliques, lateral core",tip:"Stack hips — don't drop them. Hold from knees if needed.",link:"https://www.youtube.com/watch?v=K-CrEi0ymMg"},
+  hipThrust:{name:"Hip Thrust (Floor)",target:"Glutes, APT correction",tip:"Drive through heels. Squeeze glutes at top for 1 second.",link:"https://www.youtube.com/watch?v=xDmFkJxPzeM"},
+  innerThighSqueezeB:{name:"Lying Inner Thigh Squeeze",target:"Inner thighs (adductors)",tip:"Use a pillow or fist between knees. Squeeze and hold 3 sec.",link:"https://www.youtube.com/watch?v=7-oTLvA5zio"},
+  sumoSquat:{name:"Sumo Squat",target:"Inner thighs, glutes, quads",tip:"Toes out 45°, knees track over toes. Sit deep.",link:"https://www.youtube.com/watch?v=xMGNBF8MD1c"},
+  innerThighLift:{name:"Side-Lying Inner Thigh Lift",target:"Inner thighs (adductors)",tip:"Bottom leg lifts. Foot flexed. Don't let hip roll back.",link:"https://www.youtube.com/watch?v=lTwPCgmDqNE"},
+  plateSumoSquat:{name:"Sumo Squat Pulse",target:"Inner thighs, glutes",tip:"Hold the bottom position, pulse 1 inch up and down.",link:"https://www.youtube.com/watch?v=xMGNBF8MD1c"},
+  lateralLunge:{name:"Lateral Lunge",target:"Inner thighs, glutes",tip:"Push hips back, chest up. Straight leg feels the stretch.",link:"https://www.youtube.com/watch?v=1r2nfj9VPvA"},
+  bicepCurl:{name:"Bicep Curl (1kg)",target:"Biceps, forearms",tip:"Slow and controlled. Squeeze at top, lower in 3 counts.",link:"https://www.youtube.com/watch?v=ykJmrZ5v0Oo"},
+  overheadPress:{name:"Overhead Shoulder Press (1kg)",target:"Shoulders, triceps",tip:"Core tight, don't arch back. Press straight up.",link:"https://www.youtube.com/watch?v=qEwKCR5JCog"},
+  tricepKickback:{name:"Tricep Kickback (1kg)",target:"Triceps (arm toning)",tip:"Upper arm parallel to floor. Extend fully, squeeze tricep.",link:"https://www.youtube.com/watch?v=6SS6K3lAwZ8"},
+  lateralRaise:{name:"Lateral Raise (1kg)",target:"Shoulders, upper arms",tip:"Slight elbow bend, raise to shoulder height. Slow descent.",link:"https://www.youtube.com/watch?v=3VcKaXpzqRo"},
+  wallPushUp:{name:"Wall Push-Up",target:"Chest, triceps, shoulders",tip:"Straight body line. Lower chest to wall, push back.",link:"https://www.youtube.com/watch?v=PKbAMoWvW1s"},
+  kneePushUp:{name:"Knee Push-Up",target:"Chest, triceps, arms",tip:"Core engaged. Lower chest between hands, not face.",link:"https://www.youtube.com/watch?v=jWxvty2KROs"},
+  frontRaise:{name:"Front Raise (1kg)",target:"Front deltoids, arms",tip:"Arms straight, raise to shoulder height. Control down.",link:"https://www.youtube.com/watch?v=gkdluM7VSGI"},
+  tricepOverhead:{name:"Overhead Tricep Extension (1kg)",target:"Triceps",tip:"Hold dumbbell with both hands overhead. Lower behind head, elbows in.",link:"https://www.youtube.com/watch?v=YbX7Wd8jQ-Q"},
+  hammerCurl:{name:"Hammer Curl (1kg)",target:"Biceps, forearms",tip:"Thumbs-up grip. Controlled curl and descent.",link:"https://www.youtube.com/watch?v=zC3nLlEvin4"}
+};
+
+// Tennis day warm-up exercises (clay court, 5 min)
+const tennisWarmup = [
+  {key:'tw_jog', name:'Light Jog in Place', detail:'60 seconds', link:'https://www.youtube.com/watch?v=ZKNqH1BNKFE', tip:'Gets blood flowing to legs before clay court movement.'},
+  {key:'tw_legswing', name:'Leg Swings (Front & Side)', detail:'10 each leg, each direction', link:'https://www.youtube.com/watch?v=PNJ3QYlJwrw', tip:'Opens hip flexors — essential for clay court lateral movement.'},
+  {key:'tw_hiprot', name:'Hip Rotation Stretch', detail:'8 circles each direction', link:'https://www.youtube.com/watch?v=VH7d6CkEBY4', tip:'Primes the hips for the explosive rotational demands of clay.'},
+  {key:'tw_shoulderroll', name:'Shoulder Rolls & Arm Cross', detail:'10 forward, 10 back, 20s cross stretch', link:'https://www.youtube.com/watch?v=X1sYqAC9nHM', tip:'Warms up serving and forehand/backhand shoulder muscles.'},
+  {key:'tw_anklecirc', name:'Ankle Circles & Calf Raise', detail:'10 each ankle + 15 calf raises', link:'https://www.youtube.com/watch?v=4J9M6nXE_eU', tip:'Clay is slippery — ankle stability is critical before stepping on court.'},
+  {key:'tw_lateralstep', name:'Lateral Side Steps', detail:'10 each side — wide stance', link:'https://www.youtube.com/watch?v=1oRd81Kj0VY', tip:'Mimics clay court footwork. Wide stance, stay low.'}
+];
+
+// Tennis post-game stretches
+const tennisStretches = [
+  {key:'ts_quad', name:'Standing Quad Stretch', detail:'30s each leg', link:'https://www.youtube.com/watch?v=y3m7MwDgDtg', tip:'Clay play is hard on quads from low stances — stretch immediately after.'},
+  {key:'ts_calf', name:'Calf Stretch (Wall)', detail:'30s each leg', link:'https://www.youtube.com/watch?v=9-9FZQJ3t6Y', tip:'Prevents tightness from explosive clay court starts and stops.'},
+  {key:'ts_hip', name:'Pigeon Pose Hip Stretch', detail:'40s each side', link:'https://www.youtube.com/watch?v=24nKXO4VNYQ', tip:'Releases hip flexors after all that lateral movement.'},
+  {key:'ts_shoulder', name:'Cross-Body Shoulder Stretch', detail:'30s each arm', link:'https://www.youtube.com/watch?v=OkLHSMpJGno', tip:'Cool down the serving shoulder to prevent rotator cuff tightness.'},
+  {key:'ts_hamstring', name:'Seated Hamstring Stretch', detail:'40s each leg', link:'https://www.youtube.com/watch?v=Fh-smPKLfb0', tip:'Hamstrings take a beating on clay — long hold here.'},
+  {key:'ts_spinal', name:'Supine Spinal Twist', detail:'30s each side', link:'https://www.youtube.com/watch?v=XrEiPJKLPsc', tip:'Decompresses the spine after serving and ground-stroke rotation.'}
+];
+
+// ── WORKOUT DATA ────────────────────────────────────────────
+const workouts = [
+  {day:1,phase:1,workoutMins:6,focus:["Core Activation","APT Introduction"],exercises:[
+    {ex:"pelvicTilt",reps:"10 × 2 sets, 3s hold"},{ex:"gluteBridge",reps:"12 × 2 sets"},
+    {ex:"deadBug",reps:"6 each side × 1 set"},{ex:"innerThighSqueezeB",reps:"12 × 2 sets, 3s hold"},{ex:"bicepCurl",reps:"12 × 1 set"}]},
+  {day:2,phase:1,workoutMins:6,focus:["Lower Abs","Arms Intro"],exercises:[
+    {ex:"pelvicTilt",reps:"12 × 2 sets"},{ex:"legRaiseBent",reps:"10 × 2 sets"},
+    {ex:"birdDog",reps:"8 each side × 1 set"},{ex:"wallPushUp",reps:"10 × 2 sets"},{ex:"tricepKickback",reps:"10 × 1 set"}]},
+  {day:3,phase:1,workoutMins:7,focus:["Glutes","Inner Thighs"],exercises:[
+    {ex:"gluteBridge",reps:"15 × 2 sets"},{ex:"sumoSquat",reps:"12 × 2 sets"},
+    {ex:"innerThighLift",reps:"12 each × 1 set"},{ex:"deadBug",reps:"8 each × 1 set"},{ex:"overheadPress",reps:"10 × 1 set"}]},
+  {day:4,phase:1,workoutMins:7,focus:["Core Stability","Arms"],exercises:[
+    {ex:"modifiedPlank",reps:"20s × 2 sets"},{ex:"birdDog",reps:"10 each × 1 set"},
+    {ex:"reverseCrunch",reps:"10 × 2 sets"},{ex:"bicepCurl",reps:"12 × 2 sets"},{ex:"lateralRaise",reps:"10 × 1 set"}]},
+  {day:5,phase:1,workoutMins:7,focus:["Full Lower Body","APT"],exercises:[
+    {ex:"pelvicTilt",reps:"15 × 2 sets"},{ex:"hipThrust",reps:"12 × 2 sets"},
+    {ex:"sumoSquat",reps:"15 × 2 sets"},{ex:"innerThighLift",reps:"15 each × 1 set"},{ex:"tricepKickback",reps:"12 × 1 set"}]},
+  {day:6,phase:1,workoutMins:8,focus:["Core + Arms Circuit"],exercises:[
+    {ex:"deadBug",reps:"10 each × 2 sets"},{ex:"modifiedPlank",reps:"25s × 2 sets"},
+    {ex:"wallPushUp",reps:"12 × 2 sets"},{ex:"tricepOverhead",reps:"10 × 2 sets"},{ex:"innerThighSqueezeB",reps:"15 × 2 sets"}]},
+  {day:7,phase:1,workoutMins:8,focus:["Active Recovery","Full Body"],exercises:[
+    {ex:"gluteBridge",reps:"15 × 2 sets"},{ex:"birdDog",reps:"10 each × 2 sets"},
+    {ex:"legRaiseBent",reps:"12 × 2 sets"},{ex:"bicepCurl",reps:"15 × 1 set"},{ex:"lateralRaise",reps:"12 × 1 set"}]},
+  {day:8,phase:1,workoutMins:8,focus:["Phase 1 Consolidation"],exercises:[
+    {ex:"pelvicTilt",reps:"15 × 2 sets"},{ex:"hollowBodyHold",reps:"15s × 2 sets"},
+    {ex:"sumoSquat",reps:"15 × 2 sets"},{ex:"kneePushUp",reps:"8 × 2 sets"},{ex:"innerThighLift",reps:"15 each × 1 set"}]},
+  {day:9,phase:2,workoutMins:10,focus:["Core Endurance","APT Deepening"],exercises:[
+    {ex:"hollowBodyHold",reps:"20s × 3 sets"},{ex:"deadBug",reps:"12 each × 3 sets"},
+    {ex:"reverseCrunch",reps:"12 × 3 sets"},{ex:"gluteBridge",reps:"15 × 3 sets, 2s hold"},{ex:"bicepCurl",reps:"15 × 2 sets"}]},
+  {day:10,phase:2,workoutMins:11,focus:["Inner Thighs","Triceps"],exercises:[
+    {ex:"sumoSquat",reps:"15 × 3 sets"},{ex:"plateSumoSquat",reps:"20 pulses × 3 sets"},
+    {ex:"innerThighLift",reps:"15 each × 3 sets"},{ex:"tricepKickback",reps:"15 × 3 sets"},{ex:"tricepOverhead",reps:"12 × 2 sets"}]},
+  {day:11,phase:2,workoutMins:11,focus:["Plank Progressions","Shoulders"],exercises:[
+    {ex:"fullPlank",reps:"25s × 3 sets"},{ex:"sidePlank",reps:"20s each × 3 sets"},
+    {ex:"mountainClimber",reps:"20 × 3 sets (slow)"},{ex:"overheadPress",reps:"15 × 3 sets"},{ex:"lateralRaise",reps:"12 × 2 sets"}]},
+  {day:12,phase:2,workoutMins:11,focus:["Glute & Thigh Focus"],exercises:[
+    {ex:"hipThrust",reps:"15 × 3 sets, 1s hold"},{ex:"lateralLunge",reps:"12 each × 3 sets"},
+    {ex:"innerThighSqueezeB",reps:"15 × 3 sets, 5s hold"},{ex:"reverseCrunch",reps:"15 × 3 sets"},{ex:"kneePushUp",reps:"10 × 3 sets"}]},
+  {day:13,phase:2,workoutMins:12,focus:["Core Circuit"],exercises:[
+    {ex:"deadBug",reps:"12 each × 2 sets"},{ex:"hollowBodyHold",reps:"25s × 2 sets"},
+    {ex:"birdDog",reps:"12 each × 2 sets"},{ex:"mountainClimber",reps:"25 slow × 2 sets"},{ex:"frontRaise",reps:"12 × 2 sets"}]},
+  {day:14,phase:2,workoutMins:12,focus:["Arms + Thighs Superset"],exercises:[
+    {ex:"bicepCurl",reps:"15 × 3 sets"},{ex:"sumoSquat",reps:"15 × 3 sets"},
+    {ex:"tricepKickback",reps:"15 × 3 sets"},{ex:"innerThighLift",reps:"15 each × 2 sets"},{ex:"gluteBridge",reps:"15 × 2 sets"}]},
+  {day:15,phase:2,workoutMins:12,focus:["Full Core + APT"],exercises:[
+    {ex:"pelvicTilt",reps:"15 × 3 sets"},{ex:"fullPlank",reps:"30s × 3 sets"},
+    {ex:"sidePlank",reps:"25s each × 2 sets"},{ex:"hipThrust",reps:"18 × 2 sets"},{ex:"hammerCurl",reps:"12 × 2 sets"}]},
+  {day:16,phase:2,workoutMins:13,focus:["Phase 2 Peak"],exercises:[
+    {ex:"deadBug",reps:"15 each × 2 sets"},{ex:"reverseCrunch",reps:"15 × 3 sets"},
+    {ex:"lateralLunge",reps:"15 each × 2 sets"},{ex:"kneePushUp",reps:"12 × 3 sets"},{ex:"tricepOverhead",reps:"15 × 2 sets"}]},
+  {day:17,phase:3,workoutMins:15,focus:["Strength Foundation"],exercises:[
+    {ex:"hollowBodyHold",reps:"30s × 3 sets"},{ex:"hipThrust",reps:"20 × 3 sets, 2s hold"},
+    {ex:"sumoSquat",reps:"20 × 3 sets"},{ex:"overheadPress",reps:"18 × 3 sets"},{ex:"sidePlank",reps:"30s each × 3 sets"}]},
+  {day:18,phase:3,workoutMins:16,focus:["Core Intensity"],exercises:[
+    {ex:"fullPlank",reps:"45s × 3 sets"},{ex:"mountainClimber",reps:"30 × 3 sets"},
+    {ex:"deadBug",reps:"15 each × 3 sets"},{ex:"reverseCrunch",reps:"18 × 3 sets"},{ex:"bicepCurl",reps:"20 × 3 sets"}]},
+  {day:19,phase:3,workoutMins:16,focus:["Thighs & Glutes Strength"],exercises:[
+    {ex:"plateSumoSquat",reps:"30 pulses × 3 sets"},{ex:"innerThighLift",reps:"20 each × 3 sets"},
+    {ex:"lateralLunge",reps:"15 each × 3 sets"},{ex:"gluteBridge",reps:"20 × 3 sets, 3s hold"},{ex:"tricepKickback",reps:"20 × 3 sets"}]},
+  {day:20,phase:3,workoutMins:17,focus:["Arms & Shoulders Strength"],exercises:[
+    {ex:"kneePushUp",reps:"15 × 3 sets"},{ex:"bicepCurl",reps:"20 × 3 sets"},
+    {ex:"lateralRaise",reps:"15 × 3 sets"},{ex:"tricepOverhead",reps:"15 × 3 sets"},
+    {ex:"frontRaise",reps:"15 × 3 sets"},{ex:"hollowBodyHold",reps:"30s × 3 sets"}]},
+  {day:21,phase:3,workoutMins:17,focus:["Full Body Circuit A"],exercises:[
+    {ex:"fullPlank",reps:"45s × 3 sets"},{ex:"hipThrust",reps:"20 × 3 sets"},
+    {ex:"innerThighSqueezeB",reps:"20 × 3 sets, 5s hold"},{ex:"overheadPress",reps:"18 × 3 sets"},{ex:"mountainClimber",reps:"30 × 3 sets"}]},
+  {day:22,phase:3,workoutMins:18,focus:["APT & Core Power"],exercises:[
+    {ex:"pelvicTilt",reps:"20 × 3 sets"},{ex:"deadBug",reps:"15 each × 3 sets"},
+    {ex:"birdDog",reps:"15 each × 3 sets"},{ex:"sidePlank",reps:"35s each × 3 sets"},
+    {ex:"sumoSquat",reps:"20 × 3 sets"},{ex:"hammerCurl",reps:"15 × 3 sets"}]},
+  {day:23,phase:3,workoutMins:19,focus:["Full Body Circuit B"],exercises:[
+    {ex:"kneePushUp",reps:"15 × 3 sets"},{ex:"lateralLunge",reps:"15 each × 3 sets"},
+    {ex:"reverseCrunch",reps:"20 × 3 sets"},{ex:"tricepKickback",reps:"20 × 3 sets"},
+    {ex:"innerThighLift",reps:"20 each × 3 sets"},{ex:"gluteBridge",reps:"20 × 3 sets"}]},
+  {day:24,phase:3,workoutMins:20,focus:["Phase 3 Peak"],exercises:[
+    {ex:"fullPlank",reps:"50s × 3 sets"},{ex:"hollowBodyHold",reps:"35s × 3 sets"},
+    {ex:"hipThrust",reps:"20 × 3 sets, 2s hold"},{ex:"overheadPress",reps:"20 × 3 sets"},
+    {ex:"plateSumoSquat",reps:"30 pulses × 3 sets"},{ex:"mountainClimber",reps:"35 × 3 sets"}]},
+  {day:25,phase:4,workoutMins:20,focus:["Peak Circuit A"],exercises:[
+    {ex:"fullPlank",reps:"50s × 3 sets"},{ex:"deadBug",reps:"20 each × 3 sets"},
+    {ex:"sumoSquat",reps:"20 × 3 sets"},{ex:"bicepCurl",reps:"20 × 3 sets"},
+    {ex:"tricepOverhead",reps:"20 × 3 sets"},{ex:"innerThighLift",reps:"20 each × 3 sets"}]},
+  {day:26,phase:4,workoutMins:21,focus:["Peak APT + Lower Body"],exercises:[
+    {ex:"pelvicTilt",reps:"20 × 3 sets"},{ex:"hipThrust",reps:"25 × 3 sets, 2s hold"},
+    {ex:"lateralLunge",reps:"20 each × 3 sets"},{ex:"sidePlank",reps:"40s each × 3 sets"},
+    {ex:"overheadPress",reps:"20 × 3 sets"},{ex:"reverseCrunch",reps:"20 × 3 sets"}]},
+  {day:27,phase:4,workoutMins:22,focus:["Peak Arms + Core"],exercises:[
+    {ex:"kneePushUp",reps:"15 × 4 sets"},{ex:"tricepKickback",reps:"20 × 3 sets"},
+    {ex:"frontRaise",reps:"15 × 3 sets"},{ex:"hollowBodyHold",reps:"40s × 3 sets"},
+    {ex:"mountainClimber",reps:"40 × 3 sets"},{ex:"innerThighSqueezeB",reps:"20 × 3 sets, 5s hold"}]},
+  {day:28,phase:4,workoutMins:22,focus:["Peak Full Body Strength"],exercises:[
+    {ex:"fullPlank",reps:"55s × 3 sets"},{ex:"plateSumoSquat",reps:"30 pulses × 3 sets"},
+    {ex:"deadBug",reps:"20 each × 3 sets"},{ex:"hammerCurl",reps:"20 × 3 sets"},
+    {ex:"lateralRaise",reps:"20 × 3 sets"},{ex:"hipThrust",reps:"25 × 3 sets"}]},
+  {day:29,phase:4,workoutMins:23,focus:["Peak Integration"],exercises:[
+    {ex:"birdDog",reps:"20 each × 3 sets"},{ex:"hipThrust",reps:"25 × 3 sets, 3s hold"},
+    {ex:"lateralLunge",reps:"20 each × 3 sets"},{ex:"kneePushUp",reps:"15 × 4 sets"},
+    {ex:"tricepOverhead",reps:"20 × 3 sets"},{ex:"mountainClimber",reps:"40 × 3 sets"}]},
+  {day:30,phase:4,workoutMins:24,focus:["Final Day — Full Program"],exercises:[
+    {ex:"pelvicTilt",reps:"20 × 3 sets"},{ex:"fullPlank",reps:"60s × 4 sets"},
+    {ex:"deadBug",reps:"20 each × 3 sets"},{ex:"hipThrust",reps:"25 × 4 sets, 3s hold"},
+    {ex:"sumoSquat",reps:"20 × 3 sets"},{ex:"bicepCurl",reps:"20 × 3 sets"},
+    {ex:"tricepKickback",reps:"20 × 3 sets"},{ex:"innerThighLift",reps:"20 each × 3 sets"}]}
+];
+
+// cooldown durations per phase (minutes)
+const cooldownMins = {1:2, 2:3, 3:3, 4:4};
+const warmupMins = 2;
+
+function getTotalMins(w){
+  const cd = cooldownMins[w.phase]||2;
+  return warmupMins + w.workoutMins + cd;
+}
+
+// ── SCHEDULE ────────────────────────────────────────────────
+const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function isDefaultRestDay(d){ const dw=d.getDay(); return dw===0||dw===2; }
+function dateKey(d){ return d.toISOString().slice(0,10); }
+function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+const PROGRAM_START = new Date(2026,5,8);
+
+function rebuildSchedule(){
+  const postponed = new Set(Object.keys(state.postponed).map(Number).filter(i=>state.postponed[i]));
+  const avail=[];
+  for(let d=0;d<250;d++){
+    const dt=addDays(PROGRAM_START,d);
+    if(!isDefaultRestDay(dt)) avail.push(dateKey(dt));
+  }
+  const newSched=new Array(30).fill(null);
+  const used=new Set(); let si=0;
+  for(let wi=0;wi<30;wi++){
+    if(postponed.has(wi)) continue;
+    while(used.has(avail[si])) si++;
+    newSched[wi]=avail[si]; used.add(avail[si]); si++;
+  }
+  for(let wi=0;wi<30;wi++){
+    if(!postponed.has(wi)) continue;
+    while(used.has(avail[si])) si++;
+    newSched[wi]=avail[si]; used.add(avail[si]); si++;
+  }
+  state.schedule=newSched; saveState(state);
+}
+
+// ── PROGRESS ────────────────────────────────────────────────
+function updateProgress(){
+  const done=Object.keys(state.dayDone).filter(k=>!k.startsWith('bonus')&&!k.startsWith('tennis')&&state.dayDone[k]).length;
+  const pct=Math.round((done/30)*100);
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progPct').textContent=pct+'%';
+  document.getElementById('progStats').textContent=`${done} / 30 days done`;
+}
+
+// ── TOAST ────────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// ── CALENDAR BUILD ───────────────────────────────────────────
+const phaseColors=['','var(--sage-dark)','#3A6D8C','#804060','#9A7C28'];
+const phaseLabel=['','Phase 1 · Foundation','Phase 2 · Build','Phase 3 · Strength','Phase 4 · Peak'];
+
+function buildCalendar(){
+  rebuildSchedule();
+  const root=document.getElementById('calendarRoot');
+  root.innerHTML='';
+  const dateToWorkout={};
+  state.schedule.forEach((dk,wi)=>{ if(dk) dateToWorkout[dk]=wi; });
+  const allDates=state.schedule.filter(Boolean).map(dk=>new Date(dk));
+  const lastDate=new Date(Math.max(...allDates.map(d=>d.getTime())));
+  const firstMon=getMonday(PROGRAM_START);
+  const lastSun=new Date(lastDate);
+  while(lastSun.getDay()!==0) lastSun.setDate(lastSun.getDate()+1);
+
+  const weeks=[];
+  let ws=new Date(firstMon);
+  while(ws<=lastSun){
+    const week=[];
+    for(let i=0;i<7;i++){
+      const d=addDays(ws,i); const dk=dateKey(d);
+      const wi=dateToWorkout.hasOwnProperty(dk)?dateToWorkout[dk]:null;
+      const isRest=isDefaultRestDay(d);
+      const inRange=d>=PROGRAM_START&&d<=lastSun;
+      week.push({date:d,dk,wi,isRest,inRange});
+    }
+    weeks.push(week); ws=addDays(ws,7);
+  }
+
+  const hdr=document.createElement('div'); hdr.className='week-grid';
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(dn=>{
+    const h=document.createElement('div');
+    h.className='day-header'+(dn==='Sun'||dn==='Tue'?' rest-day':'');
+    h.textContent=dn; hdr.appendChild(h);
+  }); root.appendChild(hdr);
+
+  weeks.forEach((week,wi)=>{
+    const lbl=document.createElement('div'); lbl.className='week-label';
+    lbl.textContent=`Week ${wi+1}`; root.appendChild(lbl);
+    const grid=document.createElement('div'); grid.className='week-grid';
+    week.forEach(day=>{
+      const card=document.createElement('div');
+      if(!day.inRange){
+        card.className='day-card rest empty-card';
+        card.innerHTML=`<div class="day-num">${dayNames[day.date.getDay()]}</div>`;
+      } else if(day.isRest && day.wi===null){
+        const bonusWi=state.bonusActivated[day.dk];
+        if(bonusWi!==undefined) renderBonusCard(card,day,bonusWi);
+        else renderTennisCard(card,day);
+      } else if(day.wi!==null){
+        renderWorkoutCard(card,day);
+      } else {
+        card.className='day-card rest empty-card';
+        card.innerHTML=`<div class="day-num">${formatDate(day.date)}</div>`;
+      }
+      grid.appendChild(card);
+    });
+    root.appendChild(grid);
+  });
+  updateProgress();
+}
+
+function getMonday(d){
+  // Week starts Sunday
+  const dt=new Date(d);
+  dt.setDate(dt.getDate()-dt.getDay()); return dt;
+}
+function formatDate(d){ return `${d.getDate()} ${monthNames[d.getMonth()]}`; }
+
+function renderTennisCard(card,day){
+  const dk=day.dk;
+  const logged=state.tennisLog[dk]; // 'yes','no', or undefined
+  const isSun=day.date.getDay()===0;
+  card.className='day-card rest';
+
+  let loggedBlock='';
+  if(logged==='yes') loggedBlock=`<div class="tennis-logged tennis-played">🎾 Tennis played ✓</div>`;
+  else if(logged==='no') loggedBlock=`<div class="tennis-logged tennis-skipped">🏠 Tennis skipped</div>`;
+
+  let questionBlock='';
+  if(!logged){
+    questionBlock=`
+      <div class="tennis-question">
+        <div class="tennis-q-label">Did you play today?</div>
+        <div class="tennis-btns">
+          <button class="tennis-btn tennis-yes" onclick="logTennis('${dk}','yes',event)">🎾 Yes</button>
+          <button class="tennis-btn tennis-no" onclick="logTennis('${dk}','no',event)">✗ No</button>
+        </div>
+      </div>`;
+  }
+
+  card.innerHTML=`
+    <div class="day-num">${formatDate(day.date)} · ${dayNames[day.date.getDay()]}</div>
+    <div class="rest-icon">🎾</div>
+    <div class="rest-label">${isSun?'Sunday':'Tuesday'}</div>
+    <div class="rest-sub" style="font-size:10px;color:var(--rest-text);">Tap for warm-up & stretches</div>
+    ${loggedBlock}
+    ${questionBlock}
+    <button class="bonus-add-btn" onclick="activateBonus('${dk}',event)">+ Optional Workout</button>
+  `;
+  // Clicking card body (not buttons) opens tennis modal
+  card.addEventListener('click', e=>{
+    if(e.target.closest('button')) return;
+    openTennisModal(dk, day.date);
+  });
+}
+
+function renderWorkoutCard(card,day){
+  const wi=day.wi; const w=workouts[wi];
+  const isDone=!!state.dayDone[wi];
+  const isPostponed=!!state.postponed[wi];
+  const exDone=state.exDone[wi]||{};
+  const doneCount=w.exercises.filter(e=>exDone[e.ex]).length;
+  const total=getTotalMins(w);
+  const cd=cooldownMins[w.phase]||2;
+
+  card.className=`day-card phase-${w.phase}${isDone?' done-card':''}${isPostponed?' postponed-card':''}`;
+
+  let statusBadge='';
+  if(isDone) statusBadge='<span class="card-status status-done">✓ Done</span>';
+  else if(isPostponed) statusBadge='<span class="card-status status-postponed">↷ Moved</span>';
+
+  const exList=w.exercises.slice(0,3).map(e=>{
+    const done=!!exDone[e.ex];
+    return `<li class="${done?'done-ex':''}">${exercises[e.ex].name}</li>`;
+  }).join('');
+  const more=w.exercises.length>3?`<li>+${w.exercises.length-3} more</li>`:'';
+  const progressText=doneCount>0?`<span style="font-size:9px;color:var(--done-text);font-weight:600;margin-left:2px;">${doneCount}/${w.exercises.length} ✓</span>`:'';
+
+  card.innerHTML=`
+    ${statusBadge}
+    <div class="day-num">${formatDate(day.date)} · ${dayNames[day.date.getDay()]}</div>
+    <div class="workout-day-num">Day ${w.day} ${progressText}</div>
+    <div class="card-total-time">${total} min</div>
+    <div class="time-breakdown">
+      <span class="tb-seg tb-warmup">🌅 ${warmupMins}m</span>
+      <span class="tb-seg tb-workout">💪 ${w.workoutMins}m</span>
+      <span class="tb-seg tb-cooldown">🧘 ${cd}m</span>
+    </div>
+    <ul class="exercise-list">${exList}${more}</ul>
+    <div class="card-actions">
+      <button class="card-btn btn-complete ${isDone?'active':''}" onclick="toggleDayDone(${wi},event)">${isDone?'✓ Done':'Mark done'}</button>
+      ${!isDone?`<button class="card-btn btn-postpone ${isPostponed?'postponed':''}" onclick="openPostpone(${wi},'${day.dk}',event)">${isPostponed?'↷ Moved':'Postpone'}</button>`:''}
+    </div>
+  `;
+  card.addEventListener('click', e=>{ if(e.target.closest('button')) return; openModal(wi); });
+}
+
+function renderBonusCard(card,day,wi){
+  const w=workouts[wi];
+  const isDone=!!state.dayDone['bonus_'+day.dk];
+  const total=getTotalMins(w);
+  const cd=cooldownMins[w.phase]||2;
+  card.className=`day-card bonus${isDone?' done-card':''}`;
+  card.innerHTML=`
+    <span class="card-status status-bonus">Bonus</span>
+    <div class="day-num">${formatDate(day.date)} · ${dayNames[day.date.getDay()]}</div>
+    <div style="font-size:11px;font-weight:700;color:#3A5AA0;margin-bottom:3px;">🎾 Tennis cancelled</div>
+    <div class="card-total-time">${total} min</div>
+    <div class="time-breakdown">
+      <span class="tb-seg tb-warmup">🌅 ${warmupMins}m</span>
+      <span class="tb-seg tb-workout">💪 ${w.workoutMins}m</span>
+      <span class="tb-seg tb-cooldown">🧘 ${cd}m</span>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:#3A5AA0;">Day ${w.day} · ${w.focus[0]}</div>
+    <div class="card-actions" style="margin-top:6px;">
+      <button class="card-btn btn-complete ${isDone?'active':''}" onclick="toggleBonusDone('${day.dk}',event)">${isDone?'✓ Done':'Mark done'}</button>
+      <button class="card-btn" style="background:rgba(255,100,100,.1);color:#c0392b;border:1px solid rgba(255,100,100,.25);font-size:10px;font-weight:600;padding:3px 7px;border-radius:7px;" onclick="removeBonus('${day.dk}',event)">✕</button>
+    </div>
+  `;
+  card.addEventListener('click', e=>{ if(e.target.closest('button')) return; openModal(wi); });
+}
+
+// ── TENNIS MODAL ─────────────────────────────────────────────
+let currentTennisDk=null;
+
+function openTennisModal(dk, date){
+  currentTennisDk=dk;
+  const logged=state.tennisLog[dk];
+  const isSun=date.getDay()===0;
+  const content=document.getElementById('tennisContent');
+
+  const warmupRows=tennisWarmup.map(e=>{
+    const done=!!(state.warmupDone['tennis_'+dk]||{})[e.key];
+    return `
+      <div class="ex-block ${done?'ex-done':''}" id="tw_${dk}_${e.key}">
+        <div class="ex-row">
+          <input type="checkbox" class="ex-check" ${done?'checked':''} onchange="toggleTennisWarmup('${dk}','${e.key}',this.checked)">
+          <div class="ex-info">
+            <div class="ex-name">${e.name}</div>
+            <div class="ex-target">${e.detail}</div>
+          </div>
+        </div>
+        <div class="ex-tip">💡 ${e.tip}</div>
+        <a class="ex-link" href="${e.link}" target="_blank" rel="noopener">▶ Watch tutorial</a>
+      </div>`;
+  }).join('');
+
+  const stretchRows=tennisStretches.map(e=>{
+    const done=!!(state.cooldownDone['tennis_'+dk]||{})[e.key];
+    return `
+      <div class="ex-block ${done?'ex-done':''}" id="ts_${dk}_${e.key}">
+        <div class="ex-row">
+          <input type="checkbox" class="ex-check" ${done?'checked':''} onchange="toggleTennisStretch('${dk}','${e.key}',this.checked)">
+          <div class="ex-info">
+            <div class="ex-name">${e.name}</div>
+            <div class="ex-target">${e.detail}</div>
+          </div>
+        </div>
+        <div class="ex-tip">💡 ${e.tip}</div>
+        <a class="ex-link" href="${e.link}" target="_blank" rel="noopener">▶ Watch tutorial</a>
+      </div>`;
+  }).join('');
+
+  let playedBlock='';
+  if(logged==='yes') playedBlock=`<div style="background:var(--tennis-bg);border:1px solid rgba(92,158,85,.3);border-radius:10px;padding:10px 14px;font-size:12px;font-weight:600;color:var(--tennis-border);margin-top:10px;">🎾 You played tennis today!</div>`;
+  else if(logged==='no') playedBlock=`<div style="background:rgba(196,113,74,.08);border:1px solid rgba(196,113,74,.2);border-radius:10px;padding:10px 14px;font-size:12px;font-weight:600;color:var(--terracotta);margin-top:10px;">Tennis skipped today — enjoy the rest!</div>`;
+  else playedBlock=`
+    <div style="margin-top:10px;">
+      <div style="font-size:11px;font-weight:700;color:var(--mid-grey);margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase;">Did you play today?</div>
+      <div class="tennis-played-question">
+        <button class="tpq-btn ${logged==='yes'?'selected-yes':''}" onclick="logTennisModal('${dk}','yes')">
+          <div class="tpq-icon">🎾</div>
+          <div class="tpq-label">Yes, played!</div>
+          <div class="tpq-sub">Log the session</div>
+        </button>
+        <button class="tpq-btn ${logged==='no'?'selected-no':''}" onclick="logTennisModal('${dk}','no')">
+          <div class="tpq-icon">🏠</div>
+          <div class="tpq-label">No, skipped</div>
+          <div class="tpq-sub">Rest day instead</div>
+        </button>
+      </div>
+    </div>`;
+
+  content.innerHTML=`
+    <div class="tennis-header">
+      <button class="modal-close" onclick="closeTennisModal()">✕</button>
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tennis-border);margin-bottom:4px;">🎾 CLAY COURT · ${isSun?'SUNDAY':'TUESDAY'}</div>
+      <div class="tennis-header-title">${formatDate(date)} Tennis Day</div>
+      <div class="tennis-header-sub">5-min pre-court warm-up · Post-play stretches</div>
+      ${playedBlock}
+    </div>
+    <div class="modal-body">
+      <div class="section-title">Pre-Court Warm-Up (5 min) — Do BEFORE stepping on court</div>
+      ${warmupRows}
+      <div class="section-title" style="margin-top:20px;">Post-Play Stretches — Do AFTER your session</div>
+      <div style="background:rgba(92,158,85,.07);border:1px solid rgba(92,158,85,.2);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--sage-dark);margin-bottom:12px;">
+        🌿 Clay court tip: Your muscles are warm after play — this is the best time to stretch. Hold each stretch longer than you think you need to.
+      </div>
+      ${stretchRows}
+    </div>
+  `;
+  document.getElementById('tennisOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function logTennis(dk, val, e){
+  e.stopPropagation();
+  state.tennisLog[dk]=val;
+  saveState(state);
+  buildCalendar();
+  showToast(val==='yes'?'🎾 Tennis logged!':'Rest day noted ✓');
+}
+
+function logTennisModal(dk, val){
+  state.tennisLog[dk]=val;
+  saveState(state);
+  buildCalendar();
+  // Re-render modal
+  const day=state.schedule?null:null;
+  // Just close and reopen via calendar re-render — refetch date from dk
+  const d=new Date(dk+'T00:00:00');
+  openTennisModal(dk,d);
+  showToast(val==='yes'?'🎾 Tennis logged!':'Rest day noted ✓');
+}
+
+function toggleTennisWarmup(dk,key,checked){
+  if(!state.warmupDone['tennis_'+dk]) state.warmupDone['tennis_'+dk]={};
+  state.warmupDone['tennis_'+dk][key]=checked;
+  saveState(state);
+  const el=document.getElementById(`tw_${dk}_${key}`);
+  if(el) el.classList.toggle('ex-done',checked);
+}
+
+function toggleTennisStretch(dk,key,checked){
+  if(!state.cooldownDone['tennis_'+dk]) state.cooldownDone['tennis_'+dk]={};
+  state.cooldownDone['tennis_'+dk][key]=checked;
+  saveState(state);
+  const el=document.getElementById(`ts_${dk}_${key}`);
+  if(el) el.classList.toggle('ex-done',checked);
+}
+
+function closeTennisModal(){
+  document.getElementById('tennisOverlay').classList.remove('open');
+  document.body.style.overflow='';
+  currentTennisDk=null;
+}
+function handleTennisOverlay(e){
+  if(e.target===document.getElementById('tennisOverlay')) closeTennisModal();
+}
+
+// ── WORKOUT MODAL ────────────────────────────────────────────
+let currentModalWi=null;
+
+function openModal(wi){
+  currentModalWi=wi;
+  renderModal(wi);
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function renderModal(wi){
+  const w=workouts[wi];
+  const phase=w.phase;
+  const isDone=!!state.dayDone[wi];
+  const exDone=state.exDone[wi]||{};
+  const warmupDone=state.warmupDone[wi]||{};
+  const cdDone=state.cooldownDone[wi]||{};
+  const cdSet=cooldownSets[cooldownKeyMap[phase]];
+  const cd=cooldownMins[phase]||2;
+  const total=getTotalMins(w);
+  const wg=watchGuide[phase];
+
+  const warmupRows=warmupExercises.map(wu=>`
+    <div class="ex-block ${warmupDone[wu.key]?'ex-done':''}" id="wr_${wi}_${wu.key}">
+      <div class="ex-row">
+        <input type="checkbox" class="ex-check" ${warmupDone[wu.key]?'checked':''} onchange="toggleWarmup(${wi},'${wu.key}',this.checked)">
+        <div class="ex-info">
+          <div class="ex-name">${wu.name}</div>
+          <div class="ex-target">${wu.detail}</div>
+        </div>
+      </div>
+      <a class="ex-link" href="${wu.link}" target="_blank" rel="noopener">▶ Watch tutorial</a>
+    </div>`).join('');
+
+  const exCards=w.exercises.map(item=>{
+    const ex=exercises[item.ex]; const done=!!exDone[item.ex];
+    return `
+      <div class="ex-block ${done?'ex-done':''}" id="ec_${wi}_${item.ex}">
+        <div class="ex-row">
+          <input type="checkbox" class="ex-check" ${done?'checked':''} onchange="toggleEx(${wi},'${item.ex}',this.checked)">
+          <div class="ex-info">
+            <div class="ex-name">${ex.name}</div>
+            <div class="ex-target">${ex.target}</div>
+          </div>
+          <div class="ex-reps">${item.reps}</div>
+        </div>
+        <div class="ex-tip">💡 ${ex.tip}</div>
+        <a class="ex-link" href="${ex.link}" target="_blank" rel="noopener">▶ Watch tutorial</a>
+      </div>`;
+  }).join('');
+
+  const cdCards=cdSet.map(cd=>{
+    const done=!!cdDone[cd.key];
+    return `
+      <div class="ex-block ${done?'ex-done':''}" id="cd_${wi}_${cd.key}">
+        <div class="ex-row">
+          <input type="checkbox" class="ex-check" ${done?'checked':''} onchange="toggleCooldown(${wi},'${cd.key}',this.checked)">
+          <div class="ex-info">
+            <div class="ex-name">${cd.name}</div>
+            <div class="ex-target">${cd.detail}</div>
+          </div>
+        </div>
+        <a class="ex-link" href="${cd.link}" target="_blank" rel="noopener">▶ Watch tutorial</a>
+      </div>`;
+  }).join('');
+
+  document.getElementById('modalContent').innerHTML=`
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeModalBtn()">✕</button>
+      <div class="modal-phase-tag" style="color:${phaseColors[phase]}">${phaseLabel[phase]}</div>
+      <div class="modal-title">Day ${w.day}</div>
+      <div class="modal-meta">${w.focus.map(f=>`<span>🎯 ${f}</span>`).join('')}</div>
+      <div class="modal-time-breakdown">
+        <span class="mtb-seg mtb-warmup">🌅 Warm-up ${warmupMins}m</span>
+        <span class="mtb-arrow">→</span>
+        <span class="mtb-seg mtb-workout">💪 Workout ${w.workoutMins}m</span>
+        <span class="mtb-arrow">→</span>
+        <span class="mtb-seg mtb-cooldown">🧘 Cool-down ${cd}m</span>
+        <span class="mtb-total" style="font-size:14px;font-weight:800;background:var(--charcoal);color:white;padding:4px 12px;border-radius:8px;">⏱ ${total} min total</span>
+      </div>
+      <label class="modal-day-complete ${isDone?'active':''}">
+        <input type="checkbox" ${isDone?'checked':''} onchange="toggleDayDoneModal(${wi},this.checked)">
+        <span class="modal-day-complete-label">${isDone?'✓ Day complete! Well done 💪':'Mark entire day as complete'}</span>
+      </label>
+    </div>
+    <div class="modal-body">
+      <div class="focus-tags">${w.focus.map(f=>`<span class="focus-tag">${f}</span>`).join('')}</div>
+
+      <div class="section-title">🍎 Apple Watch — How to Log This</div>
+      <div class="watch-block">
+        <div class="watch-icon">⌚</div>
+        <div class="watch-info">
+          <div class="watch-type">${wg.type}</div>
+          <div class="watch-steps">${wg.steps.replace('Apple Watch','<strong>Apple Watch</strong>').replace(/(".*?")/g,'<strong>$1</strong>')}</div>
+          <div class="watch-tip">💡 ${wg.tip}</div>
+        </div>
+      </div>
+
+      <div class="section-title">🌅 Warm-Up (${warmupMins} min)</div>
+      ${warmupRows}
+
+      <div class="section-title">💪 Workout (${w.workoutMins} min)</div>
+      ${exCards}
+
+      <div class="section-title">🧘 Cool-Down (${cd} min)</div>
+      ${cdCards}
+    </div>
+  `;
+}
+
+function toggleWarmup(wi,key,checked){
+  if(!state.warmupDone[wi]) state.warmupDone[wi]={};
+  state.warmupDone[wi][key]=checked; saveState(state);
+  document.getElementById(`wr_${wi}_${key}`)?.classList.toggle('ex-done',checked);
+  checkAutoComplete(wi);
+}
+function toggleEx(wi,exKey,checked){
+  if(!state.exDone[wi]) state.exDone[wi]={};
+  state.exDone[wi][exKey]=checked; saveState(state);
+  document.getElementById(`ec_${wi}_${exKey}`)?.classList.toggle('ex-done',checked);
+  checkAutoComplete(wi);
+  buildCalendar(); renderModal(wi);
+}
+function toggleCooldown(wi,key,checked){
+  if(!state.cooldownDone[wi]) state.cooldownDone[wi]={};
+  state.cooldownDone[wi][key]=checked; saveState(state);
+  document.getElementById(`cd_${wi}_${key}`)?.classList.toggle('ex-done',checked);
+  checkAutoComplete(wi);
+}
+function checkAutoComplete(wi){
+  const w=workouts[wi];
+  const allEx=w.exercises.every(e=>(state.exDone[wi]||{})[e.ex]);
+  const allWu=warmupExercises.every(wu=>(state.warmupDone[wi]||{})[wu.key]);
+  const cdSet=cooldownSets[cooldownKeyMap[w.phase]];
+  const allCd=cdSet.every(cd=>(state.cooldownDone[wi]||{})[cd.key]);
+  if(allEx&&allWu&&allCd&&!state.dayDone[wi]){
+    state.dayDone[wi]=true; saveState(state);
+    buildCalendar(); renderModal(wi);
+    showToast(`🎉 Day ${w.day} auto-completed!`);
+  }
+}
+function toggleDayDoneModal(wi,checked){
+  state.dayDone[wi]=checked;
+  if(checked){
+    if(!state.exDone[wi]) state.exDone[wi]={};
+    workouts[wi].exercises.forEach(e=>{ state.exDone[wi][e.ex]=true; });
+    if(!state.warmupDone[wi]) state.warmupDone[wi]={};
+    warmupExercises.forEach(wu=>{ state.warmupDone[wi][wu.key]=true; });
+    const cdSet=cooldownSets[cooldownKeyMap[workouts[wi].phase]];
+    if(!state.cooldownDone[wi]) state.cooldownDone[wi]={};
+    cdSet.forEach(cd=>{ state.cooldownDone[wi][cd.key]=true; });
+    showToast(`🎉 Day ${workouts[wi].day} complete!`);
+  } else {
+    state.exDone[wi]={}; state.warmupDone[wi]={}; state.cooldownDone[wi]={};
+  }
+  saveState(state); buildCalendar(); renderModal(wi);
+}
+function toggleDayDone(wi,e){
+  e.stopPropagation();
+  const checked=!state.dayDone[wi];
+  toggleDayDoneModal(wi,checked);
+}
+function closeModalBtn(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow=''; currentModalWi=null;
+}
+function handleOverlayClick(e){ if(e.target===document.getElementById('modalOverlay')) closeModalBtn(); }
+
+// ── BONUS WORKOUT ────────────────────────────────────────────
+function activateBonus(dk,e){
+  e.stopPropagation();
+  const done=Object.keys(state.dayDone).filter(k=>!k.startsWith('bonus')&&!k.startsWith('tennis')&&state.dayDone[k]).map(Number);
+  const lastDone=done.length?Math.max(...done):-1;
+  const suggest=Math.min(lastDone+1,29);
+  const w=workouts[suggest];
+  const total=getTotalMins(w);
+  const cd=cooldownMins[w.phase]||2;
+  const content=document.getElementById('postponeContent');
+  content.innerHTML=`
+    <div class="postpone-title">🎾 Tennis cancelled?</div>
+    <div class="postpone-sub">Add an optional workout for ${dk}.</div>
+    <div class="postpone-btns">
+      <button class="postpone-opt" onclick="confirmBonus('${dk}',${suggest})">
+        <strong>Day ${w.day} — ${w.focus[0]}</strong>
+        <span>${total} min total · Suggested next workout</span>
+      </button>
+      ${suggest>0?`<button class="postpone-opt" onclick="confirmBonus('${dk}',${suggest-1})">
+        <strong>Day ${workouts[suggest-1].day} — ${workouts[suggest-1].focus[0]}</strong>
+        <span>${getTotalMins(workouts[suggest-1])} min total</span>
+      </button>`:''}
+    </div>
+    <button class="postpone-cancel" onclick="closePostponeModal()">Cancel</button>`;
+  document.getElementById('postponeOverlay').classList.add('open');
+}
+function confirmBonus(dk,wi){
+  state.bonusActivated[dk]=wi; saveState(state);
+  closePostponeModal(); buildCalendar(); showToast('Bonus workout added! 💪');
+}
+function removeBonus(dk,e){
+  e.stopPropagation();
+  delete state.bonusActivated[dk]; delete state.dayDone['bonus_'+dk];
+  saveState(state); buildCalendar(); showToast('Bonus workout removed');
+}
+function toggleBonusDone(dk,e){
+  e.stopPropagation();
+  const key='bonus_'+dk; state.dayDone[key]=!state.dayDone[key];
+  saveState(state); buildCalendar();
+  if(state.dayDone[key]) showToast('🎉 Bonus workout complete!');
+}
+
+// ── POSTPONE ────────────────────────────────────────────────
+function openPostpone(wi,dk,e){
+  e.stopPropagation();
+  const w=workouts[wi];
+  const curDk=state.schedule[wi];
+  const curDate=curDk?new Date(curDk):new Date(PROGRAM_START);
+  let nextDate=addDays(curDate,1);
+  while(isDefaultRestDay(nextDate)) nextDate=addDays(nextDate,1);
+  const nextStr=`${nextDate.getDate()} ${monthNames[nextDate.getMonth()]}`;
+  document.getElementById('postponeContent').innerHTML=`
+    <div class="postpone-title">Postpone Day ${w.day}</div>
+    <div class="postpone-sub">Schedule shifts forward, keeping Sundays & Tuesdays as tennis days.</div>
+    <div class="postpone-btns">
+      <button class="postpone-opt" onclick="confirmPostpone(${wi})">
+        <strong>Push schedule forward</strong>
+        <span>Day ${w.day} moves to ${nextStr} — all later workouts shift accordingly</span>
+      </button>
+      <button class="postpone-opt" onclick="confirmPostpone(${wi})">
+        <strong>Skip to end of program</strong>
+        <span>Day ${w.day} moves to after Day 30</span>
+      </button>
+    </div>
+    <button class="postpone-cancel" onclick="closePostponeModal()">Cancel</button>`;
+  document.getElementById('postponeOverlay').classList.add('open');
+}
+function confirmPostpone(wi){
+  state.postponed[wi]=true; saveState(state);
+  closePostponeModal(); buildCalendar(); showToast(`Day ${workouts[wi].day} postponed ↷`);
+}
+function closePostponeModal(){
+  document.getElementById('postponeOverlay').classList.remove('open');
+}
+function handlePostponeOverlay(e){ if(e.target===document.getElementById('postponeOverlay')) closePostponeModal(); }
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeModalBtn(); closeTennisModal(); closePostponeModal(); closeSummary(); } });
+
+// ── SUMMARY ──────────────────────────────────────────────────
+function openSummary(){
+  renderSummary();
+  document.getElementById('summaryOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeSummary(){
+  document.getElementById('summaryOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function handleSummaryOverlay(e){
+  if(e.target===document.getElementById('summaryOverlay')) closeSummary();
+}
+
+function computeStreak(){
+  // Current streak: consecutive done days counting back from today
+  const today = dateKey(new Date());
+  let streak = 0, best = 0, cur = 0;
+  for(let wi=0; wi<30; wi++){
+    const dk = state.schedule[wi];
+    if(!dk) continue;
+    const done = !!state.dayDone[wi];
+    if(done){ cur++; best = Math.max(best,cur); }
+    else { cur = dk <= today ? 0 : cur; }
+  }
+  // Current streak = consecutive from the last done day backwards
+  let currentStreak = 0;
+  for(let wi=29; wi>=0; wi--){
+    if(state.dayDone[wi]) currentStreak++;
+    else { if(state.schedule[wi] && state.schedule[wi] <= today) break; }
+  }
+  return { current: currentStreak, best };
+}
+
+function computeFocusStats(){
+  // Count how many done days featured each focus area
+  const areas = {
+    'Core & Abs': {done:0, total:0, color:'#C4714A'},
+    'APT Fix':    {done:0, total:0, color:'#5C7358'},
+    'Arm Toning': {done:0, total:0, color:'#5B8DA6'},
+    'Inner Thighs':{done:0, total:0, color:'#A66080'},
+  };
+  const coreKeys   = ['deadBug','pelvicTilt','hollowBodyHold','reverseCrunch','fullPlank','modifiedPlank','mountainClimber','sidePlank','legRaiseBent'];
+  const aptKeys    = ['pelvicTilt','gluteBridge','birdDog','hipThrust','deadBug','hollowBodyHold'];
+  const armKeys    = ['bicepCurl','overheadPress','tricepKickback','lateralRaise','wallPushUp','kneePushUp','frontRaise','tricepOverhead','hammerCurl'];
+  const thighKeys  = ['innerThighSqueezeB','sumoSquat','innerThighLift','plateSumoSquat','lateralLunge'];
+
+  workouts.forEach((w,wi)=>{
+    const exKeys = w.exercises.map(e=>e.ex);
+    const done = !!state.dayDone[wi];
+    if(exKeys.some(k=>coreKeys.includes(k)))    { areas['Core & Abs'].total++; if(done) areas['Core & Abs'].done++; }
+    if(exKeys.some(k=>aptKeys.includes(k)))     { areas['APT Fix'].total++;    if(done) areas['APT Fix'].done++; }
+    if(exKeys.some(k=>armKeys.includes(k)))     { areas['Arm Toning'].total++; if(done) areas['Arm Toning'].done++; }
+    if(exKeys.some(k=>thighKeys.includes(k)))   { areas['Inner Thighs'].total++; if(done) areas['Inner Thighs'].done++; }
+  });
+  return areas;
+}
+
+function computeTimeInvested(){
+  let totalMins = 0, warmupMinsTotal = 0, cooldownMinsTotal = 0;
+  const cdMap = {1:2,2:3,3:3,4:4};
+  workouts.forEach((w,wi)=>{
+    if(!state.dayDone[wi]) return;
+    const cd = cdMap[w.phase]||2;
+    warmupMinsTotal += 2;
+    cooldownMinsTotal += cd;
+    totalMins += getTotalMins(w);
+  });
+  return { total: totalMins, warmup: warmupMinsTotal, cooldown: cooldownMinsTotal,
+           workout: totalMins - warmupMinsTotal - cooldownMinsTotal };
+}
+
+function getMotive(doneDays, streak){
+  if(doneDays===0) return {icon:'🌱', title:"Every journey starts with Day 1", sub:"Your first workout is the most important one. You've got this."};
+  if(doneDays<5)   return {icon:'✨', title:"You've started — that's everything", sub:`${doneDays} days in. Momentum is building.`};
+  if(doneDays<10)  return {icon:'🔥', title:"The habit is forming", sub:`${doneDays} days done. Your body is already adapting.`};
+  if(doneDays<16)  return {icon:'💪', title:"Halfway there!", sub:`${doneDays} days complete. Your core is noticeably stronger.`};
+  if(doneDays<22)  return {icon:'⚡', title:"You're in the strength phase now", sub:`${doneDays} days done. This is where real change happens.`};
+  if(doneDays<28)  return {icon:'🏆', title:"Peak phase — you're almost there", sub:`${doneDays} days complete. The finish line is visible.`};
+  if(doneDays<30)  return {icon:'🌟', title:"Final push!", sub:`${doneDays} days done. Just ${30-doneDays} more to go.`};
+  return {icon:'🎉', title:"30 days complete — incredible!", sub:"You built a habit, fixed your posture, and transformed your mornings."};
+}
+
+function renderSummary(){
+  const body = document.getElementById('summaryBody');
+  const done = workouts.filter((_,wi)=>!!state.dayDone[wi]).length;
+  const postponed = workouts.filter((_,wi)=>!!state.postponed[wi]).length;
+  const pct = Math.round((done/30)*100);
+  const streak = computeStreak();
+  const focus = computeFocusStats();
+  const time = computeTimeInvested();
+  const motive = getMotive(done, streak.current);
+  const today = dateKey(new Date());
+
+  // Phase breakdown
+  const phaseData = [
+    {name:'Phase 1',color:'var(--sage)',      total:8,  done: workouts.filter((w,wi)=>w.phase===1&&state.dayDone[wi]).length},
+    {name:'Phase 2',color:'#5B8DA6',          total:8,  done: workouts.filter((w,wi)=>w.phase===2&&state.dayDone[wi]).length},
+    {name:'Phase 3',color:'#A66080',          total:8,  done: workouts.filter((w,wi)=>w.phase===3&&state.dayDone[wi]).length},
+    {name:'Phase 4',color:'var(--gold)',      total:6,  done: workouts.filter((w,wi)=>w.phase===4&&state.dayDone[wi]).length},
+  ];
+
+  // Tennis log
+  const tennisPlayed = Object.values(state.tennisLog).filter(v=>v==='yes').length;
+  const tennisSkipped = Object.values(state.tennisLog).filter(v=>v==='no').length;
+
+  // 30-dot timeline
+  const dots = workouts.map((w,wi)=>{
+    const isDone = !!state.dayDone[wi];
+    const isPostponed = !!state.postponed[wi];
+    const dk = state.schedule[wi]||'';
+    const isFuture = dk > today;
+    let cls='tl-dot ';
+    if(isDone) cls+='tl-done';
+    else if(isPostponed) cls+='tl-postponed';
+    else if(isFuture) cls+='tl-upcoming';
+    else cls+=`tl-phase-${w.phase}`;
+    const tooltip=`Day ${w.day}: ${isDone?'✓ Done':isPostponed?'↷ Postponed':isFuture?'Upcoming':'Pending'}`;
+    return `<div class="${cls}" title="${tooltip}" style="opacity:${isDone?1:isPostponed?.6:.35}">
+      ${isDone?'✓':w.day}
+    </div>`;
+  }).join('');
+
+  // Phase bars
+  const phaseBars = phaseData.map(p=>`
+    <div class="phase-bar-row">
+      <div class="phase-bar-name" style="color:${p.color}">${p.name}</div>
+      <div class="phase-bar-track">
+        <div class="phase-bar-fill" style="width:${Math.round((p.done/p.total)*100)}%;background:${p.color};"></div>
+      </div>
+      <div class="phase-bar-count" style="color:${p.color}">${p.done}/${p.total}</div>
+    </div>`).join('');
+
+  // Focus cells
+  const focusCells = Object.entries(focus).map(([name,data])=>`
+    <div class="focus-cell">
+      <div class="focus-cell-name">${name}</div>
+      <div class="focus-cell-bar">
+        <div class="focus-cell-fill" style="width:${data.total?Math.round((data.done/data.total)*100):0}%;background:${data.color};"></div>
+      </div>
+      <div class="focus-cell-stats">${data.done} of ${data.total} sessions done</div>
+    </div>`).join('');
+
+  // ── DURATION BAR CHART ────────────────────────────────
+  const maxMins = Math.max(...workouts.map(w=>getTotalMins(w)));
+  const phaseBarColors = ['','var(--sage)','#5B8DA6','#A66080','var(--gold)'];
+  const durationBars = workouts.map((w,wi)=>{
+    const total = getTotalMins(w);
+    const isDone = !!state.dayDone[wi];
+    const heightPct = Math.round((total/maxMins)*100);
+    const col = isDone ? 'var(--done-border)' : phaseBarColors[w.phase];
+    const cls = isDone ? 'done-bar' : 'undone-bar';
+    return `<div class="chart-bar-col">
+      <div class="chart-bar ${cls}" style="height:${heightPct}%;background:${col};"
+           data-tip="Day ${w.day}: ${total} min${isDone?' ✓':''}"></div>
+    </div>`;
+  }).join('');
+
+  // ── CALENDAR HEATMAP ──────────────────────────────────
+  // Build a Mon→Sun grid from program start to last day
+  const dateToWI = {};
+  state.schedule.forEach((dk,wi)=>{ if(dk) dateToWI[dk]=wi; });
+  const allSchedDates = state.schedule.filter(Boolean).map(dk=>new Date(dk));
+  const hmLastDate = allSchedDates.length ? new Date(Math.max(...allSchedDates.map(d=>d.getTime()))) : new Date(PROGRAM_START);
+  const hmFirst = getMonday(PROGRAM_START);
+  const hmLast = new Date(hmLastDate);
+  while(hmLast.getDay()!==0) hmLast.setDate(hmLast.getDate()+1);
+  const hmToday = dateKey(new Date());
+  let hmCells = [];
+  let cur = new Date(hmFirst);
+  while(cur <= hmLast) {
+    const dk = dateKey(cur);
+    const wi = dateToWI.hasOwnProperty(dk) ? dateToWI[dk] : null;
+    const isRest = isDefaultRestDay(cur);
+    const inRange = cur >= PROGRAM_START && cur <= hmLast;
+    if(!inRange) { hmCells.push(`<div class="hm-cell hm-empty"></div>`); cur=addDays(cur,1); continue; }
+    if(isRest && wi===null){
+      const tl = state.tennisLog[dk];
+      const cls = tl==='yes'?'hm-tennis':tl==='no'?'hm-rest':'hm-rest';
+      const tip = `${formatDate(cur)}: ${tl==='yes'?'🎾 Tennis played':tl==='no'?'Tennis skipped':'Rest day'}`;
+      hmCells.push(`<div class="hm-cell ${cls}" data-tip="${tip}">${tl==='yes'?'🎾':'–'}</div>`);
+    } else if(wi!==null){
+      const isDone = !!state.dayDone[wi];
+      const isPost = !!state.postponed[wi];
+      const isFut = dk > hmToday;
+      const cls = isDone?'hm-done':isPost?'hm-postponed':isFut?'hm-rest':'hm-pending';
+      const tip = `Day ${workouts[wi].day} (${formatDate(cur)}): ${isDone?'✓ Done':isPost?'↷ Moved':isFut?'Upcoming':'Pending'}`;
+      const lbl = isDone?'✓':isPost?'↷':workouts[wi].day;
+      hmCells.push(`<div class="hm-cell ${cls}" data-tip="${tip}">${lbl}</div>`);
+    } else {
+      hmCells.push(`<div class="hm-cell hm-empty"></div>`);
+    }
+    cur = addDays(cur,1);
+  }
+  const heatmapCells = hmCells.join('');
+
+  // ── EXERCISE COMPLETION BREAKDOWN ────────────────────
+  // Count how many times each exercise appears across all 30 days, and how many are ticked
+  const exTally = {}; // {exKey: {name, total, done}}
+  workouts.forEach((w,wi)=>{
+    const exDone = state.exDone[wi]||{};
+    w.exercises.forEach(item=>{
+      if(!exTally[item.ex]) exTally[item.ex]={name:exercises[item.ex].name,total:0,done:0};
+      exTally[item.ex].total++;
+      if(exDone[item.ex]) exTally[item.ex].done++;
+    });
+  });
+  // Sort by most appeared (most important), then by done count desc
+  const sortedEx = Object.entries(exTally)
+    .sort((a,b)=> b[1].total-a[1].total || b[1].done-a[1].done)
+    .slice(0,12); // top 12
+  const maxExTotal = Math.max(...sortedEx.map(([,d])=>d.total));
+  const exCompRows = sortedEx.map(([key,d])=>{
+    const pct = d.total ? Math.round((d.done/d.total)*100) : 0;
+    const col = pct===100?'var(--done-border)':pct>50?'var(--sage)':pct>0?'var(--terracotta)':'var(--light-grey)';
+    return `<div class="ex-comp-row">
+      <div class="ex-comp-name" title="${d.name}">${d.name}</div>
+      <div class="ex-comp-track"><div class="ex-comp-fill" style="width:${pct}%;background:${col};"></div></div>
+      <div class="ex-comp-count">${d.done}/${d.total}</div>
+    </div>`;
+  }).join('');
+
+  body.innerHTML = `
+    <!-- MOTIVATIONAL BADGE -->
+    <div class="motive-badge">
+      <div class="motive-icon">${motive.icon}</div>
+      <div class="motive-text">
+        <div class="motive-title">${motive.title}</div>
+        <div class="motive-sub">${motive.sub}</div>
+      </div>
+    </div>
+
+    <!-- TOP STATS -->
+    <div class="sum-section" style="margin-top:20px;">At a glance</div>
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--done-text)">${done}</div>
+        <div class="stat-label">Days Done</div>
+        <div class="stat-sub">of 30</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--terracotta)">${pct}%</div>
+        <div class="stat-label">Complete</div>
+        <div class="stat-sub">${30-done} remaining</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:#9A7C28">${streak.current}</div>
+        <div class="stat-label">Streak</div>
+        <div class="stat-sub">best: ${streak.best}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:#804060">${postponed}</div>
+        <div class="stat-label">Postponed</div>
+        <div class="stat-sub">days moved</div>
+      </div>
+    </div>
+
+    <!-- STREAK -->
+    ${streak.current>0?`
+    <div class="streak-block">
+      <div class="streak-fire">${streak.current>=7?'🔥':'⚡'}</div>
+      <div class="streak-info">
+        <div class="streak-num">${streak.current} day${streak.current!==1?'s':''}</div>
+        <div class="streak-label">Current streak — keep it going!</div>
+        <div class="streak-best">Personal best: ${streak.best} day${streak.best!==1?'s':''}</div>
+      </div>
+    </div>`:''}
+
+    <!-- 30-DAY TIMELINE DOTS -->
+    <div class="sum-section">30-day journey</div>
+    <div class="timeline-grid">${dots}</div>
+    <div class="tl-label-row">
+      <span>Day 1</span><span>Day 10</span><span>Day 20</span><span>Day 30</span>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;">
+      <span style="font-size:10px;display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--done-border);display:inline-block;"></span>Done</span>
+      <span style="font-size:10px;display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--postponed-border);display:inline-block;"></span>Postponed</span>
+      <span style="font-size:10px;display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--light-grey);display:inline-block;"></span>Upcoming</span>
+    </div>
+
+    <!-- SESSION DURATION BAR CHART -->
+    <div class="sum-section">Session durations</div>
+    <div class="chart-wrap">
+      <div class="chart-bars">${durationBars}</div>
+      <div class="chart-axis">
+        <span>Day 1</span><span>Day 8</span><span>Day 16</span><span>Day 24</span><span>Day 30</span>
+      </div>
+      <div class="chart-legend">
+        <span class="chart-legend-item"><span class="chart-legend-dot" style="background:var(--done-border)"></span>Completed</span>
+        <span class="chart-legend-item"><span class="chart-legend-dot" style="background:var(--light-grey);opacity:.5"></span>Upcoming</span>
+        <span class="chart-legend-item" style="color:var(--mid-grey);font-size:10px;">Bar height = total session length</span>
+      </div>
+    </div>
+
+    <!-- CALENDAR HEATMAP -->
+    <div class="sum-section" style="margin-top:20px;">Weekly heatmap</div>
+    <div class="heatmap-wrap">
+      <div class="heatmap-grid">
+        ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="hm-header">${d}</div>`).join('')}
+        ${heatmapCells}
+      </div>
+      <div class="hmap-legend">
+        <span class="hmap-li"><span class="hmap-sq" style="background:var(--done-border)"></span>Done</span>
+        <span class="hmap-li"><span class="hmap-sq" style="background:var(--tennis-border)"></span>Tennis</span>
+        <span class="hmap-li"><span class="hmap-sq" style="background:var(--postponed-border)"></span>Postponed</span>
+        <span class="hmap-li"><span class="hmap-sq" style="background:var(--light-grey)"></span>Pending</span>
+      </div>
+    </div>
+
+    <!-- PHASE PROGRESS -->
+    <div class="sum-section" style="margin-top:20px;">Phase progress</div>
+    <div class="phase-bars">${phaseBars}</div>
+
+    <!-- FOCUS AREAS -->
+    <div class="sum-section" style="margin-top:20px;">Focus areas</div>
+    <div class="focus-grid">${focusCells}</div>
+
+    <!-- TIME INVESTED -->
+    <div class="sum-section" style="margin-top:20px;">Time invested</div>
+    <div class="time-invested-block">
+      <div>
+        <div class="ti-num">${time.total}</div>
+        <div class="ti-label">Total min</div>
+      </div>
+      <div>
+        <div class="ti-num">${Math.floor(time.total/60)}<span style="font-size:14px;">h</span>${time.total%60}<span style="font-size:14px;">m</span></div>
+        <div class="ti-label">Hours & min</div>
+      </div>
+      <div>
+        <div class="ti-num">${done>0?Math.round(time.total/done):0}</div>
+        <div class="ti-label">Avg min/day</div>
+      </div>
+    </div>
+
+    <!-- EXERCISE COMPLETION BREAKDOWN -->
+    <div class="sum-section" style="margin-top:20px;">Exercise completion</div>
+    <div class="ex-comp-list">${exCompRows}</div>
+
+    <!-- TENNIS -->
+    ${tennisPlayed+tennisSkipped>0?`
+    <div class="sum-section" style="margin-top:20px;">Tennis days</div>
+    <div class="tennis-sum-row">
+      <div class="tennis-sum-cell">
+        <div class="tennis-sum-num" style="color:var(--tennis-border)">${tennisPlayed}</div>
+        <div class="tennis-sum-label">🎾 Played</div>
+      </div>
+      <div class="tennis-sum-cell">
+        <div class="tennis-sum-num" style="color:var(--terracotta)">${tennisSkipped}</div>
+        <div class="tennis-sum-label">🏠 Skipped</div>
+      </div>
+      <div class="tennis-sum-cell">
+        <div class="tennis-sum-num" style="color:var(--charcoal)">${tennisPlayed+tennisSkipped}</div>
+        <div class="tennis-sum-label">Total logged</div>
+      </div>
+    </div>`:''}
+  `;
+}
+
+
+// ── PWA INSTALL ──────────────────────────────────────────────
+let deferredPrompt=null;
+const banner=document.getElementById('installBanner');
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); deferredPrompt=e;
+  setTimeout(()=>{ if(!localStorage.getItem('pwaInstallDismissed')) banner.classList.add('visible'); },4000);
+});
+document.getElementById('installBtn').addEventListener('click',async()=>{
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const{outcome}=await deferredPrompt.userChoice;
+  if(outcome==='accepted'){ banner.classList.remove('visible'); showToast('✅ App installed!'); }
+  deferredPrompt=null;
+});
+window.addEventListener('appinstalled',()=>{ banner.classList.remove('visible'); deferredPrompt=null; });
+function dismissInstall(){ banner.classList.remove('visible'); localStorage.setItem('pwaInstallDismissed','1'); }
+const isIos=/iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
+if(isIos&&!isStandalone&&!localStorage.getItem('pwaInstallDismissed')){
+  setTimeout(()=>{
+    banner.innerHTML=`<div class="install-banner-text"><strong>📲 Add to Home Screen</strong><span>Tap Share ⎙ then "Add to Home Screen"</span></div><button class="install-dismiss" onclick="dismissInstall()">×</button>`;
+    banner.classList.add('visible');
+  },4000);
+}
+
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────
+const NOTIF_TIME_HOUR = 20; // 8 PM
+const NOTIF_TIME_MIN  = 0;
+
+// Detect platform
+const _isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const _isAndroid = /android/i.test(navigator.userAgent);
+const _isMobile = _isIos || _isAndroid;
+
+function initNotifPanel() {
+  const btnA = document.getElementById('notifBtnAndroid');
+  const btnI = document.getElementById('notifBtnIos');
+  const status = document.getElementById('notifStatus');
+  const sub = document.getElementById('notifPanelSub');
+
+  if (_isIos) {
+    // iOS: show ICS calendar button always
+    btnI.style.display = 'inline-block';
+    sub.textContent = 'Tap to add daily 8 PM reminders to your iPhone Calendar';
+    // Check if already downloaded
+    if (localStorage.getItem('icsDownloaded')) {
+      status.textContent = '📅 Calendar set';
+      status.className = 'notif-status notif-on';
+    }
+  } else {
+    // Android / Desktop: show push notification button
+    btnA.style.display = 'inline-block';
+    if (!('Notification' in window)) {
+      sub.textContent = 'Notifications not supported in this browser';
+      btnA.disabled = true;
+      return;
+    }
+    if (Notification.permission === 'granted' && localStorage.getItem('notifEnabled')) {
+      status.textContent = '🔔 On';
+      status.className = 'notif-status notif-on';
+      btnA.textContent = 'Turn Off';
+      btnA.classList.add('active');
+      scheduleAndroidNotif(); // resume on page load
+    } else if (Notification.permission === 'denied') {
+      sub.textContent = 'Notifications blocked — enable in browser settings';
+      btnA.disabled = true;
+    }
+  }
+}
+
+async function requestAndroidNotif() {
+  const btnA = document.getElementById('notifBtnAndroid');
+  const status = document.getElementById('notifStatus');
+
+  // Toggle off
+  if (localStorage.getItem('notifEnabled')) {
+    localStorage.removeItem('notifEnabled');
+    status.textContent = 'Off';
+    status.className = 'notif-status notif-off';
+    btnA.textContent = 'Enable Notifications';
+    btnA.classList.remove('active');
+    // Tell SW to cancel
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'CANCEL_NOTIF' });
+    }
+    showToast('Reminders turned off');
+    return;
+  }
+
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') {
+    showToast('Permission denied — check browser settings');
+    return;
+  }
+  localStorage.setItem('notifEnabled', '1');
+  status.textContent = '🔔 On';
+  status.className = 'notif-status notif-on';
+  btnA.textContent = 'Turn Off';
+  btnA.classList.add('active');
+  scheduleAndroidNotif();
+  showToast('🔔 Reminders enabled for 8:00 PM!');
+}
+
+function scheduleAndroidNotif() {
+  if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
+    // SW not ready yet — retry in 1s
+    setTimeout(scheduleAndroidNotif, 1000);
+    return;
+  }
+  const payload = buildTomorrowPayload();
+  navigator.serviceWorker.controller.postMessage({
+    type: 'SCHEDULE_NOTIF',
+    payload
+  });
+}
+
+function buildTomorrowPayload() {
+  // Find tomorrow's date
+  const tomorrow = addDays(new Date(), 1);
+  const tmrKey = dateKey(tomorrow);
+  const tmrIsRest = isDefaultRestDay(tomorrow);
+
+  // Find workout index scheduled for tomorrow
+  rebuildSchedule();
+  const wi = state.schedule.findIndex(dk => dk === tmrKey);
+
+  let title, body;
+
+  if (tmrIsRest && wi === -1) {
+    // Tennis day tomorrow
+    const dayName = tomorrow.getDay() === 0 ? 'Sunday' : 'Tuesday';
+    title = `🎾 Tennis tomorrow — ${formatDate(tomorrow)}`;
+    body = `${dayName} tennis day! Don't forget your 5-min clay court warm-up before stepping on court.`;
+  } else if (wi !== -1) {
+    const w = workouts[wi];
+    const total = getTotalMins(w);
+    const exNames = w.exercises.slice(0, 4).map(e => exercises[e.ex].name).join(', ');
+    const more = w.exercises.length > 4 ? ` +${w.exercises.length - 4} more` : '';
+    title = `💪 Tomorrow: Day ${w.day} · ${total} min`;
+    body = `${w.focus.join(' · ')}\n${exNames}${more}`;
+  } else {
+    title = '🏋️ FitPlan — Rest day tomorrow';
+    body = 'Tomorrow is a rest day. Recovery is part of the program!';
+  }
+
+  // Calculate next 8 PM fire time
+  const now = new Date();
+  const fireAt = new Date();
+  fireAt.setHours(NOTIF_TIME_HOUR, NOTIF_TIME_MIN, 0, 0);
+  if (fireAt <= now) fireAt.setDate(fireAt.getDate() + 1); // already past 8 PM today
+
+  return { title, body, fireAt: fireAt.getTime() };
+}
+
+// In-app reminder banner (fires at 8 PM if app is open — works on all platforms)
+function startInAppReminderCheck() {
+  setInterval(() => {
+    const now = new Date();
+    if (now.getHours() === NOTIF_TIME_HOUR && now.getMinutes() === NOTIF_TIME_MIN) {
+      const p = buildTomorrowPayload();
+      showToast(p.title);
+      // Also show a persistent banner for 30 seconds
+      showInAppReminder(p.title, p.body);
+    }
+  }, 30000); // check every 30s
+}
+
+function showInAppReminder(title, body) {
+  // Remove existing if any
+  document.getElementById('inAppReminder')?.remove();
+  const el = document.createElement('div');
+  el.id = 'inAppReminder';
+  el.style.cssText = `position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:50%;
+    transform:translateX(-50%);background:var(--charcoal);color:white;
+    padding:14px 18px;border-radius:14px;max-width:360px;width:calc(100vw - 32px);
+    z-index:9997;box-shadow:0 8px 32px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);
+    animation:slideDown .3s ease;font-family:'DM Sans',sans-serif;`;
+  el.innerHTML = `
+    <style>@keyframes slideDown{from{transform:translateX(-50%) translateY(-20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}</style>
+    <div style="display:flex;align-items:flex-start;gap:10px;">
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:3px;">${title}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.65);line-height:1.5;">${body}</div>
+      </div>
+      <button onclick="this.closest('#inAppReminder').remove()" style="background:transparent;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;padding:0;flex-shrink:0;line-height:1;">×</button>
+    </div>`;
+  document.body.appendChild(el);
+  setTimeout(() => el?.remove(), 30000);
+}
+
+// ── ICS CALENDAR FILE GENERATOR (iOS) ────────────────────────
+function downloadIcs() {
+  rebuildSchedule();
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//FitPlan//Morning Fitness//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+  ];
+
+  const icsDate = d => {
+    const y = d.getFullYear();
+    const mo = String(d.getMonth()+1).padStart(2,'0');
+    const dy = String(d.getDate()).padStart(2,'0');
+    return `${y}${mo}${dy}`;
+  };
+  const icsDateTime = d => {
+    const dt = icsDate(d);
+    const h = String(d.getHours()).padStart(2,'0');
+    const m = String(d.getMinutes()).padStart(2,'0');
+    return `${dt}T${h}${m}00`;
+  };
+
+  // For each scheduled workout day, create an event the EVENING BEFORE at 8 PM
+  state.schedule.forEach((dk, wi) => {
+    if (!dk) return;
+    const workoutDate = new Date(dk + 'T00:00:00');
+    const notifDate = new Date(workoutDate);
+    notifDate.setDate(notifDate.getDate() - 1); // day before
+    notifDate.setHours(NOTIF_TIME_HOUR, NOTIF_TIME_MIN, 0, 0);
+
+    const w = workouts[wi];
+    const total = getTotalMins(w);
+    const exNames = w.exercises.slice(0, 4).map(e => exercises[e.ex].name).join(', ');
+    const more = w.exercises.length > 4 ? ` +${w.exercises.length - 4} more` : '';
+
+    const uid = `fitplan-day${w.day}-${dk}@fitplan`;
+    const dtstart = icsDateTime(notifDate);
+    const dtend = icsDateTime(new Date(notifDate.getTime() + 15 * 60000)); // 15-min event
+    const created = icsDateTime(new Date());
+
+    lines.push('BEGIN:VEVENT');
+    lines.push(`UID:${uid}`);
+    lines.push(`DTSTAMP:${created}Z`);
+    lines.push(`DTSTART:${dtstart}`);
+    lines.push(`DTEND:${dtend}`);
+    lines.push(`SUMMARY:💪 Tomorrow: Day ${w.day} · ${total} min`);
+    lines.push(`DESCRIPTION:${w.focus.join(' · ')}\\n\\nExercises: ${exNames}${more}\\n\\nOpen FitPlan app to view full workout.`);
+    lines.push('BEGIN:VALARM');
+    lines.push('TRIGGER:PT0S');
+    lines.push('ACTION:DISPLAY');
+    lines.push(`DESCRIPTION:Tomorrow's workout: Day ${w.day} · ${w.focus[0]} · ${total} min`);
+    lines.push('END:VALARM');
+    lines.push('END:VEVENT');
+  });
+
+  // Also add tennis day reminders (for the days before each tennis day in range)
+  const allDays = [];
+  for (let d = 0; d < 100; d++) {
+    const dt = addDays(PROGRAM_START, d);
+    if (dt > addDays(new Date(), 70)) break;
+    if (isDefaultRestDay(dt)) allDays.push(dt);
+  }
+  allDays.forEach(dt => {
+    const notifDate = new Date(dt);
+    notifDate.setDate(notifDate.getDate() - 1);
+    notifDate.setHours(NOTIF_TIME_HOUR, NOTIF_TIME_MIN, 0, 0);
+    const dayName = dt.getDay() === 0 ? 'Sunday' : 'Tuesday';
+    const uid = `fitplan-tennis-${dateKey(dt)}@fitplan`;
+    const dtstart = icsDateTime(notifDate);
+    const dtend = icsDateTime(new Date(notifDate.getTime() + 15 * 60000));
+    const created = icsDateTime(new Date());
+    lines.push('BEGIN:VEVENT');
+    lines.push(`UID:${uid}`);
+    lines.push(`DTSTAMP:${created}Z`);
+    lines.push(`DTSTART:${dtstart}`);
+    lines.push(`DTEND:${dtend}`);
+    lines.push(`SUMMARY:🎾 Tomorrow: ${dayName} Tennis Day`);
+    lines.push(`DESCRIPTION:Tennis day tomorrow! Remember your 5-min clay court warm-up:\\n- Leg Swings\\n- Hip Circles\\n- Ankle Stability\\n- Lateral Side Steps`);
+    lines.push('BEGIN:VALARM');
+    lines.push('TRIGGER:PT0S');
+    lines.push('ACTION:DISPLAY');
+    lines.push(`DESCRIPTION:🎾 Tennis tomorrow — don't forget your clay court warm-up!`);
+    lines.push('END:VALARM');
+    lines.push('END:VEVENT');
+  });
+
+  lines.push('END:VCALENDAR');
+
+  const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'FitPlan-Reminders.ics';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // Mark as set
+  localStorage.setItem('icsDownloaded', '1');
+  const status = document.getElementById('notifStatus');
+  status.textContent = '📅 Calendar set';
+  status.className = 'notif-status notif-on';
+  document.getElementById('notifPanelSub').textContent = 'Reminders added to your Calendar app';
+  showToast('📅 Open the .ics file to add to Calendar!');
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => {
+        // Once SW is active, schedule if enabled
+        if (localStorage.getItem('notifEnabled') && Notification.permission === 'granted') {
+          navigator.serviceWorker.ready.then(() => scheduleAndroidNotif());
+        }
+      })
+      .catch(()=>{});
+  });
+}
+startInAppReminderCheck();
+initNotifPanel();
+buildCalendar();
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+======================================
+ INSTALL YOUR FITNESS APP ON YOUR PHONE
+======================================
+
+Your fitness plan is packaged as a PWA (Progressive Web App).
+This means it installs like a native app — no App Store needed.
+All progress is saved locally on your phone.
+
+─────────────────────────────────────
+ OPTION 1 — Easiest: Use a free host
+─────────────────────────────────────
+Upload the folder to a free static hosting service:
+
+  1. Go to https://netlify.com/drop
+  2. Drag the entire "fitness-pwa" folder onto the page
+  3. You get a URL like https://random-name.netlify.app
+  4. Open that URL on your phone
+  5. Follow the install prompt below
+
+─────────────────────────────────────
+ OPTION 2 — iPhone/iPad (Safari)
+─────────────────────────────────────
+  1. Open the URL in Safari (must be Safari, not Chrome)
+  2. Tap the Share button (rectangle with arrow ⎙) at the bottom
+  3. Scroll down and tap "Add to Home Screen"
+  4. Name it "FitPlan" → tap Add
+  5. It appears on your home screen like a native app ✓
+
+─────────────────────────────────────
+ OPTION 3 — Android (Chrome)
+─────────────────────────────────────
+  1. Open the URL in Chrome
+  2. A banner appears at the bottom — tap "Install"
+     OR tap the three-dot menu → "Add to Home screen"
+  3. Tap Install → it appears on your home screen ✓
+
+─────────────────────────────────────
+ WORKS FULLY OFFLINE
+─────────────────────────────────────
+Once installed, the app works without internet.
+(Video links open YouTube when you're online)
+
+ ALL PROGRESS SAVED ON YOUR PHONE
+─────────────────────────────────────
+Progress is stored in your phone's local storage.
+It persists across sessions and app restarts.
+It is NOT synced to any server — fully private.
+
+======================================
